@@ -1,9 +1,11 @@
-
-from flask import Flask, render_template
+from flask import Flask
+from flask_cors import CORS
 from flask_socketio import SocketIO
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+socketio = SocketIO(app, cors_allowed_origins='*')
+# Enable CORS for all routes
 
 
 @app.route('/')
@@ -21,7 +23,7 @@ def handle_message(msg):
 
 @socketio.on('connect')
 def test_connect():
-    return "Client connected"
+    print('Client connected')
 
 
 if __name__ == '__main__':
