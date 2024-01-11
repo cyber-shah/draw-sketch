@@ -14,7 +14,13 @@ function App() {
     socket.on('connect', () => {
       console.log('connected to the server');
     })
+
+    // Listen for incoming messages and update the state
+    socket.on('message', (data) => {
+      setMessages((prevMessages) => [...prevMessages, data]);
+    });
   }, []);
+
 
   const sendMessage = (message) => {
     socket.emit('message', { name: name, message: message });
@@ -44,6 +50,16 @@ function App() {
             onClick={() => sendMessage(message)}>
             Send
           </Button>
+
+          <div className="message-container">
+            {messages.map((msg, index) => (
+              <div key={index} className="message">
+                <Typography variant="subtitle1">
+                  {msg.name}: {msg.message}
+                </Typography>
+              </div>
+            ))}
+          </div>
         </Container>
       </Paper>
 

@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -14,10 +14,9 @@ def test_connect():
 
 
 @socketio.on('message')
-def handle_message(message):
-    data = message
-    print('received message from ' +
-          data.get('name') + ': ' + data.get('message'))
+def handle_message(data):
+    print('Message from {}: {}'.format(data['name'], data['message']))
+    emit('message', data, broadcast=True)
 
 
 if __name__ == '__main__':
