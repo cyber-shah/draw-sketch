@@ -3,7 +3,71 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { Container, Paper, TextField, Button, Typography } from '@mui/material';
 
-const socket = io('http://localhost:55556');
+const PreConnection = ({ connectToServer, setName, setIpAddress }) => (
+  <Container className="container">
+    <TextField
+      className="name-input"
+      fullWidth
+      label="Enter your nickname"
+      onChange={(event) => setName(event.target.value)}
+      variant="standard"
+    />
+
+    <TextField
+      className="ip-input"
+      fullWidth
+      label="Enter the server IP address"
+      onChange={(event) => setIpAddress(event.target.value)}
+      variant="standard"
+    />
+
+    <Button
+      className="connect-button"
+      variant="contained"
+      color="primary"
+      fullWidth
+      onClick={connectToServer}
+    >
+      Connect
+    </Button>
+  </Container>
+);
+
+
+const ChatWindow = ({ sendMessage, messages, setMessage, message }) => (
+  <Container className="container" style={{ maxWidth: '500px', width: '33.33vw' }}>
+    <TextField
+      className="message-input"
+      fullWidth
+      label="Enter your message"
+      onChange={(event) => setMessage(event.target.value)}
+      variant="standard"
+    />
+
+    <Button
+      className="send-button"
+      variant="contained"
+      color="primary"
+      fullWidth
+      onClick={() => sendMessage(message)}
+    >
+      Send
+    </Button>
+
+    <div className="message-container">
+      {messages.map((msg, index) => (
+        <div key={index} className="message">
+          <Typography variant="subtitle1">
+            {msg.name}: {msg.message}
+          </Typography>
+        </div>
+      ))}
+    </div>
+  </Container>
+);
+
+
+
 
 function App() {
   // ---------------------------- STATES -------------------------------------------
@@ -12,6 +76,7 @@ function App() {
   const [name, setName] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [ipAddress, setIpAddress] = useState('');
+  const [socketInstance, setSocketInstance] = useState(null);
   // ---------------------------- STATES -------------------------------------------
 
 
@@ -19,24 +84,23 @@ function App() {
   // ---------------------------- FUNCTIONS -------------------------------------------
   //TODO : learn how this works like useffecet only ruuns once so why
   //do we need to put on message here?
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('connected to the server at ' + socket.id);
+  const connectToServer = () => {
+    const socketInstance = io(`http://${ipAddress}`);
+    setSocketInstance(socketInstance);
+
+    socketInstance.on('connect', () => {
+      console.log('connected to the server');
       setIsConnected(true);
-    })
+    });
+
     // Listen for incoming messages and update the state
-    socket.on('message', (data) => {
+    socketInstance.on('message', (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
-  }, []);
-
-  const connectToServer = () => {
-    // Connect to the server with the provided IP address
-    socket.connect(`http://${ipAddress}:5000`);
   };
 
-  const sendMessage = (message) => {
-    socket.emit('message', { name: name, message: message });
+  const sendMessage = () => {
+    socketInstance.emit('message', { name: name, message: message });
   };
   // ---------------------------- FUNCTIONS -------------------------------------------
 
@@ -49,39 +113,21 @@ function App() {
     <div className="App">
       <Paper elevation={3} className="paper">
         <Typography variant="h4" className="header">Chat App</Typography>
-        <Container className="container">
-          <TextField
-            fullWidth
-            label="Enter your name"
-            onChange={input => setName(input.target.value)}
-            variant="standard" />
-
-          <TextField
-            fullWidth
-            label="Enter your message"
-            onChange={input => setMessage(input.target.value)}
-            variant="standard" />
-
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={() => sendMessage(message)}>
-            Send
-          </Button>
-
-          <div className="message-container">
-            {messages.map((msg, index) => (
-              <div key={index} className="message">
-                <Typography variant="subtitle1">
-                  {msg.name}: {msg.message}
-                </Typography>
-              </div>
-            ))}
-          </div>
-        </Container>
+        {!isConnected ? (
+          <PreConnection
+            connectToServer={connectToServer}
+            setIpAddress={setIpAddress}
+            setName={setName}
+          />
+        ) : (
+          <ChatWindow
+            sendMessage={sendMessage}
+            messages={messages}
+            setMessage={setMessage}
+            message={message}
+          />
+        )}
       </Paper>
-
     </div>
   );
 }
