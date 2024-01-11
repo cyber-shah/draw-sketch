@@ -1,6 +1,7 @@
 import { Container, TextField, Button, Typography, Paper } from '@mui/material';
 
 export default function ChatWindow(props) {
+
   return (
     <Paper className="container"
       style={{

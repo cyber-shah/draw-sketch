@@ -12,25 +12,27 @@ clients = {}
 
 @socketio.on('connect')
 def test_connect():
-    print("Client connected : " + str(request.sid))
+    data = request.args
+    if 'nickname' in data:
+        clients[request.sid] = data['nickname']
 
+        print("Client {} is now known as {}".format(
+            str(request.sid), data['nickname']))
 
-@socketio.on('set-nickname')
-def set_nickname(data):
-    clients[request.sid] = data['nickname']
-    print("Client {} is now known as {}".format(
-        str(request.sid), data['nickname']))
-    socketio.emit('message', "User {} has connected".format(data['nickname']))
+        socketio.emit(
+            'message', "User {} has connected".format(data['nickname']))
 
 
 @socketio.on('disconnect')
 def emit_disconnect():
     print("Client disconnected : " + str(request.sid))
     socketio.emit(
-        'message', "User {} has disconnected".format(str(request.sid)))
+        'message',
+        {"nickname": "server",
+         "message": "User {} has disconnected".format(clients[request.sid])})
 
 
-@socketio.on('message')
+@ socketio.on('message')
 def handle_message(data):
     # get the nickname of the sender
     nickname = clients.get(request.sid, None)

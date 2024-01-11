@@ -20,14 +20,18 @@ function App() {
   //TODO : learn how this works like useffecet only ruuns once so why
   //do we need to put on message here?
   const connectToServer = () => {
-    const socketInstance = io(`http://${ipAddress}`);
+
+    // Connect to the server and send the nickname
+    const socketInstance = io(`http://${ipAddress}`, {
+      query: {
+        nickname: name,
+      },
+    });
     setSocketInstance(socketInstance);
 
     socketInstance.on('connect', () => {
       console.log('connected to the server');
       setIsConnected(true);
-      // set nickname to server
-      socketInstance.emit('set-nickname', { nickname: name });
     });
 
     // Listen for incoming messages and update the state by appending the incoming message
@@ -66,6 +70,7 @@ function App() {
           connectToServer={connectToServer}
           setIpAddress={setIpAddress}
           setName={setName}
+          name={name}
         />
       ) : (
         <ChatWindow
