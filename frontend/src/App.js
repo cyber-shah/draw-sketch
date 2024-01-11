@@ -4,12 +4,14 @@ import io from 'socket.io-client';
 import { Container, Paper, TextField, Button, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/ChatWindow.js';
+import Chance from 'chance';
+const chance = new Chance()
 
 function App() {
   // ---------------------------- STATES -------------------------------------------
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [name, setName] = useState('');
+  const [name, setName] = useState(chance.word({ syllables: 2 }));
   const [isConnected, setIsConnected] = useState(false);
   const [ipAddress, setIpAddress] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
@@ -78,6 +80,7 @@ function App() {
           messages={messages}
           setMessage={setMessage}
           message={message}
+          name={name}
         />
       )}
     </Paper>
