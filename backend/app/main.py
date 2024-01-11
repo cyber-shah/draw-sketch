@@ -1,16 +1,17 @@
-from flask import Flask
-from flask_cors import CORS
+from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 socketio = SocketIO(app, cors_allowed_origins='*')
 # Enable CORS for all routesapp
+
+HOST = 'localhost'
+PORT = 55556
 
 
 @socketio.on('connect')
 def test_connect():
-    print("Client connected")
+    print("Client connected : " + str(request.sid))
 
 
 @socketio.on('message')
@@ -20,4 +21,5 @@ def handle_message(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host=HOST, port=PORT)
+    print("Server is live at http://{}:{}".format(HOST, PORT))
