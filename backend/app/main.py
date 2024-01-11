@@ -20,7 +20,9 @@ def test_connect():
             str(request.sid), data['nickname']))
 
         socketio.emit(
-            'message', "User {} has connected".format(data['nickname']))
+            'message',
+            {"nickname": "server",
+             "message": "User {} has connected".format(data['nickname'])})
 
 
 @socketio.on('disconnect')
