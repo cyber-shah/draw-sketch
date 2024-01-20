@@ -6,3 +6,7 @@ Get Started:
 Server is running on http://localhost:55556
 enter that address on the webpage under the "Server Address" field
 and click connect
+
+libs to look into:
+1. konva js
+2. fabric js
