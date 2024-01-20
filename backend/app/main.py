@@ -34,7 +34,7 @@ def emit_disconnect():
          "message": "User {} has disconnected".format(clients[request.sid])})
 
 
-@ socketio.on('message')
+@socketio.on('message')
 def handle_message(data):
     # get the nickname of the sender
     nickname = clients.get(request.sid, None)

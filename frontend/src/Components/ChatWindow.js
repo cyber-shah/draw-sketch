@@ -1,5 +1,3 @@
-
-
 import React, { useRef, useEffect } from 'react';
 import { TextField, Button, Typography, Paper, Box } from '@mui/material';
 
@@ -7,7 +5,9 @@ const ChatWindow = (props) => {
   const isCurrentUser = (msg) => msg.nickname === props.name;
 
   const messagesEndRef = useRef(null);
+  //TODO: distingiush messeages by server. just make them without bulbs
 
+   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
