@@ -1,7 +1,7 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState,  } from 'react';
 import io from 'socket.io-client';
-import { Container, Paper, TextField, Button, Typography } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/ChatWindow.js';
 import Chance from 'chance';
@@ -13,20 +13,24 @@ function App() {
   const [message, setMessage] = useState('');
   const [name, setName] = useState(chance.word({ syllables: 2 }));
   const [isConnected, setIsConnected] = useState(false);
-  const [portNumber, setPortNumber] = useState('');
+  const [roomNumber, setRoomNumber] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
   // ---------------------------- STATES -------------------------------------------
 
 
   // ---------------------------- FUNCTIONS -------------------------------------------
-  //TODO : learn how this works like useffecet only ruuns once so why
-  //do we need to put on message here?
-  const connectToServer = () => {
+  const connectToServer = (command) => {
+    //TODO: make sure none of the fields are empty
+    // TODO: get multiple rooms workin
+    // what we do here:
+    // 1. create a socket instance with senders name and room number
+    // 2. everything after that is handled by the server
 
     // Connect to the server and send the sender
-    const socketInstance = io(`http://localhost:55556/room_chat`, {
+    const socketInstance = io(`http://localhost:55556/room_${roomNumber}`, {
       query: {
         sender: name,
+        roomNumber: roomNumber,
       },
     });
     setSocketInstance(socketInstance);
@@ -77,9 +81,10 @@ function App() {
       {!isConnected ? (
         <LoginPage
           connectToServer={connectToServer}
-          setIpAddress={setPortNumber}
+          setRoomNumber={setRoomNumber}
           setName={setName}
           name={name}
+          roomNumber={roomNumber}
         />
       ) : (
         <ChatWindow

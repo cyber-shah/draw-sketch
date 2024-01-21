@@ -14,7 +14,19 @@ def create_room(port):
     rooms[namespace] = room
     print("room started at " + namespace)
     
-    
+   
+""" 
+@app.route('/check_room', methods=['POST'])
+def check_room():
+    data = request.get_json()
+    room_number = data.get('roomNumber')
+
+    if f"/room_{room_number}" in rooms:
+        return jsonify({'exists': True})
+    else:
+        return jsonify({'exists': False})
+    """
+
 if __name__ == '__main__':
     create_room('chat')
     socketio.run(app, host='localhost', port=55556, debug=True)

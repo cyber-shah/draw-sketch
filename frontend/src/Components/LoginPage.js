@@ -1,8 +1,6 @@
-
 import React from 'react';
-import { Paper, TextField, Button, Stack, Typography, IconButton, Link } from '@mui/material';
+import { Paper, TextField, Button, Stack, Typography, Link } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
-
 
 export default function LoginPage(props) {
   return (
@@ -14,7 +12,7 @@ export default function LoginPage(props) {
 
         <TextField
           className="name-input"
-          label="Enter your sender"
+          label="Pick a fun name!"
           onChange={(event) => props.setName(event.target.value)}
           value={props.name}
           variant="outlined"
@@ -25,28 +23,38 @@ export default function LoginPage(props) {
 
         <TextField
           className="ip-input"
-          label="Enter the server IP address"
-          onChange={(event) => props.setIpAddress(event.target.value)}
+          label="Room ID"
+          onChange={(event) => props.setRoomNumber(event.target.value)}
           variant="outlined"
           fullWidth
           style={{ marginBottom: '20px' }}
         />
 
         <Button
-          className="connect-button"
+          className="join-button"
           variant="contained"
           color="primary"
-          onClick={props.connectToServer}
+          onClick={() => props.connectToServer('join', props.roomNumber )}
+          fullWidth
+          style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold', marginBottom: '10px' }}
+        >
+          Join Room
+        </Button>
+
+        <Button
+          className="create-button"
+          variant="contained"
+          color="secondary"
+          onClick={() => props.connectToServer('create', props.roomNumber)}
           fullWidth
           style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold' }}
         >
-          Continue
+          Create New Room
         </Button>
 
         <Typography variant="caption" style={{ marginTop: '20px', color: '#888' }}>
           Developed by cyber-shah
         </Typography>
-
 
         <Link
           href="https://github.com/cyber-shah"
@@ -65,5 +73,3 @@ export default function LoginPage(props) {
     </Paper>
   );
 };
-
-
