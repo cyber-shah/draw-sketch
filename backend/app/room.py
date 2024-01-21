@@ -1,10 +1,11 @@
 from flask import Flask, request
 from flask_socketio import SocketIO
+from flask_socketio import Namespace, emit
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-    # TODO: change nickname to sender
+    # TODO: change sender to sender
     # TODO: figure out how to send messages to specific clients
 
 """
@@ -20,7 +21,7 @@ an event named "my_event," the server looks for a method named on_my_event in th
 The methods in your class-based namespace should follow a specific naming convention: on_<event_name>.
 """
 
-class Room(socketio.Namespace):
+class Room(Namespace):
     """_summary_
 
     Args:
@@ -43,43 +44,53 @@ class Room(socketio.Namespace):
         super().__init__(namespace)
         self.clients = {}
 
-    def on_connect(self, sid, environ):
-        nickname = request.args.get('nickname')
-        if nickname:
-            self.clients[sid] = nickname
-            print("Client {} is now known as {}".format(sid, nickname))
-            socketio.emit(
+    def on_connect(self):
+        sender = request.args.get('sender')
+        print(request)
+        if sender:
+            self.clients[sender] = request.sid
+            print("Client {} is now known as {}".format(request.sid, sender))
+            emit(
                 'message',
-                {   "status": "success",
+                {
+                    "status": "success",
                     "sender": "server",
-                    "message": "User {} has connected".format(nickname)
+                    "payload": "User {} has connected".format(sender)
                 },
+                broadcast=True
             )
             print(self.clients)
 
-    def on_disconnect(self, sid):
-        print("Client disconnected: " + str(sid))
-        nickname = self.clients.get(sid, None)
-        if nickname is not None:
+    def on_disconnect(self):
+        print("Client disconnected: " + request.sid)
+        print(request)
+        """
+        sender = self.clients.get(request.sid, None)
+        if sender is not None:
             socketio.emit(
                 'message',
                 {   "status": "success",
                     "sender": "server",
-                    "message": "User {} has disconnected".format(nickname)
+                    "payload": "User {} has disconnected".format(sender)
                 },
             )
+        """
 
-    def on_message(self):
-        # get the nickname of the sender
-        nickname = self.clients.get(request.sid, None)
-        data = request.args
-        # if the nickname is not None, then send the message
-        if nickname is not None:
-            print("Message from {}:".format(nickname), data['message'])
-            socketio.emit(
+    def on_message(self, data):
+        # for debug purposes
+        print(request) 
+        print(data)
+        # get the sender of the sender
+        sender = request.args.get('sender')
+        # if the sender is not None, then send the message
+        if sender is not None:
+            print("Message from {}:".format(sender), data['payload'])
+            emit(
                 'message', 
                 {   "status": "success",
-                    "sender": nickname,
-                    "message": data['message']})
+                    "sender": sender,
+                    "payload": data['payload']
+                },
+                broadcast=True)
         else:
             print("Unknown user sent a message")

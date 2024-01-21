@@ -13,7 +13,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [name, setName] = useState(chance.word({ syllables: 2 }));
   const [isConnected, setIsConnected] = useState(false);
-  const [ipAddress, setIpAddress] = useState('');
+  const [portNumber, setPortNumber] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
   // ---------------------------- STATES -------------------------------------------
 
@@ -23,29 +23,36 @@ function App() {
   //do we need to put on message here?
   const connectToServer = () => {
 
-    // Connect to the server and send the nickname
-    const socketInstance = io(`http://${ipAddress}`, {
+    // Connect to the server and send the sender
+    const socketInstance = io(`http://localhost:55556/room_chat`, {
       query: {
-        nickname: name,
+        sender: name,
       },
     });
     setSocketInstance(socketInstance);
 
+    // Listen to the connect event from the server
     socketInstance.on('connect', () => {
       console.log('connected to the server');
       setIsConnected(true);
     });
 
-    // Listen for incoming messages and update the state by appending the incoming message
+    // Listen for INCOMING messages and update the state by appending the incoming message
     socketInstance.on('message', (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
   };
-
+  
   const sendMessage = () => {
-    socketInstance.emit('message', { message: message });
+    socketInstance.emit('message', { 
+      "response" : "success",
+      "sender": name,
+      "payload": message,
+    });
   };
+
   // ---------------------------- FUNCTIONS -------------------------------------------
+
 
   // ---------------------------- RETURN -------------------------------------------
   return (
@@ -70,7 +77,7 @@ function App() {
       {!isConnected ? (
         <LoginPage
           connectToServer={connectToServer}
-          setIpAddress={setIpAddress}
+          setIpAddress={setPortNumber}
           setName={setName}
           name={name}
         />

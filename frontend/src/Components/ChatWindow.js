@@ -2,11 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { TextField, Button, Typography, Paper, Box } from '@mui/material';
 
 const ChatWindow = (props) => {
-  const isCurrentUser = (msg) => msg.nickname === props.name;
+  const isCurrentUser = (msg) => msg.sender === props.name;
 
   const messagesEndRef = useRef(null);
   //TODO: distingiush messeages by server. just make them without bulbs
-
+  // TODO: enter to send
    
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -14,7 +14,7 @@ const ChatWindow = (props) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [props.messages]);
+  }, [props.message]);
 
   return (
     <Paper className="container"
@@ -46,10 +46,10 @@ const ChatWindow = (props) => {
               wordWrap: 'break-word',
             }}>
               <Typography variant='caption' style={{ marginBottom: '4px', color: isCurrentUser(msg) ? 'rgba(255, 255, 255, 0.7)' : '#888' }}>
-                {isCurrentUser(msg) ? 'You' : msg.nickname}
+                {isCurrentUser(msg) ? 'You' : msg.sender}
               </Typography>
               <Typography>
-                {msg.message}
+                {msg.payload}
               </Typography>
             </div>
             <Typography variant="caption" style={{ alignSelf: 'flex-end', marginTop: '4px', color: 'rgba(0, 0, 0, 0.5)' }}>

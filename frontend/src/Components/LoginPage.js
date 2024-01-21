@@ -14,7 +14,7 @@ export default function LoginPage(props) {
 
         <TextField
           className="name-input"
-          label="Enter your nickname"
+          label="Enter your sender"
           onChange={(event) => props.setName(event.target.value)}
           value={props.name}
           variant="outlined"
