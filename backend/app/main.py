@@ -1,21 +1,21 @@
-from flask import Flask, request
+from flask import Flask
 from flask_socketio import SocketIO
 from room import Room
-from flask_socketio import Namespace
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 rooms = {}
 
+
 def create_room(port):
-    namespace = f"/room_{port}" 
+    namespace = f"/room_{port}"
     room = socketio.on_namespace(Room(namespace))
     rooms[namespace] = room
     print("room started at " + namespace)
-    
-   
-""" 
+
+
+"""
 @app.route('/check_room', methods=['POST'])
 def check_room():
     data = request.get_json()

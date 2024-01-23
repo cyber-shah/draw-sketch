@@ -7,7 +7,7 @@ const ChatWindow = (props) => {
   const messagesEndRef = useRef(null);
   //TODO: distingiush messeages by server. just make them without bulbs
   // TODO: enter to send
-   
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };

@@ -1,11 +1,28 @@
 import './App.css';
-import { useState,  } from 'react';
+import { useState, } from 'react';
 import io from 'socket.io-client';
 import { Paper, Typography } from '@mui/material';
-import LoginPage from './Components/LoginPage.js';
-import ChatWindow from './Components/ChatWindow.js';
+import LoginPage from './Components/ChatWindow/LoginPage.js';
+import ChatWindow from './Components/ChatWindow/chatWindow.js';
 import Chance from 'chance';
 const chance = new Chance()
+
+const css = {
+  background: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  tile: {
+    padding: '20px',
+    marginTop: '0',
+    position: 'absolute',
+    top: '0',
+  }
+};
+
 
 function App() {
   // ---------------------------- STATES -------------------------------------------
@@ -17,11 +34,12 @@ function App() {
   const [socketInstance, setSocketInstance] = useState(null);
   // ---------------------------- STATES -------------------------------------------
 
-
   // ---------------------------- FUNCTIONS -------------------------------------------
   const connectToServer = (command) => {
-    //TODO: make sure none of the fields are empty
+    // TODO: make sure none of the fields are empty
     // TODO: get multiple rooms workin
+
+
     // what we do here:
     // 1. create a socket instance with senders name and room number
     // 2. everything after that is handled by the server
@@ -46,10 +64,10 @@ function App() {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
   };
-  
+
   const sendMessage = () => {
-    socketInstance.emit('message', { 
-      "response" : "success",
+    socketInstance.emit('message', {
+      "response": "success",
       "sender": name,
       "payload": message,
     });
@@ -61,41 +79,32 @@ function App() {
   // ---------------------------- RETURN -------------------------------------------
   return (
     <Paper
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+      style={css.background} >
       <Typography variant="h4" className="header"
-        style={{
-          padding: '20px',
-          marginTop: '0',
-          position: 'absolute',
-          top: '0',
-        }}>
+        style={css.tile}>
         Sync Sketch
       </Typography>
 
-      {!isConnected ? (
-        <LoginPage
-          connectToServer={connectToServer}
-          setRoomNumber={setRoomNumber}
-          setName={setName}
-          name={name}
-          roomNumber={roomNumber}
-        />
-      ) : (
-        <ChatWindow
-          sendMessage={sendMessage}
-          messages={messages}
-          setMessage={setMessage}
-          message={message}
-          name={name}
-        />
-      )}
-    </Paper>
+      {
+        !isConnected ? (
+          <LoginPage
+            connectToServer={connectToServer}
+            setRoomNumber={setRoomNumber}
+            setName={setName}
+            name={name}
+            roomNumber={roomNumber}
+          />
+        ) : (
+          <ChatWindow
+            sendMessage={sendMessage}
+            messages={messages}
+            setMessage={setMessage}
+            message={message}
+            name={name}
+          />
+        )
+      }
+    </Paper >
   );
 }
 
