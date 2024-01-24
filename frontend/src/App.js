@@ -1,9 +1,10 @@
 import './App.css';
 import { useState, } from 'react';
 import io from 'socket.io-client';
-import { Paper, Typography } from '@mui/material';
-import LoginPage from './Components/ChatWindow/LoginPage.js';
-import ChatWindow from './Components/ChatWindow/chatWindow.js';
+import { Paper, Typography, Box, Grid } from '@mui/material';
+import LoginPage from './Components/LoginPage.js';
+import ChatWindow from './Components/chatWindow.js';
+import Canvas from './Components/drawingCanvas/drawingCanvas.js';
 import Chance from 'chance';
 const chance = new Chance()
 
@@ -15,11 +16,9 @@ const css = {
     alignItems: 'center',
     justifyContent: 'center'
   },
-  tile: {
-    padding: '20px',
-    marginTop: '0',
-    position: 'absolute',
-    top: '0',
+  chatWindow: {
+    padding: '5px',
+    margin: 'auto',
   }
 };
 
@@ -80,11 +79,6 @@ function App() {
   return (
     <Paper
       style={css.background} >
-      <Typography variant="h4" className="header"
-        style={css.tile}>
-        Sync Sketch
-      </Typography>
-
       {
         !isConnected ? (
           <LoginPage
@@ -95,15 +89,28 @@ function App() {
             roomNumber={roomNumber}
           />
         ) : (
-          <ChatWindow
-            sendMessage={sendMessage}
-            messages={messages}
-            setMessage={setMessage}
-            message={message}
-            name={name}
-          />
+
+          <Grid container spacing={2} style={{ width: "100vw" }}>
+            <Grid item xs={9} >
+              <Canvas />
+            </Grid>
+
+
+            <Grid item xs={3} style={css.chatWindow} >
+              <ChatWindow
+                sendMessage={sendMessage}
+                messages={messages}
+                setMessage={setMessage}
+                message={message}
+                name={name}
+              />
+            </Grid>
+
+
+          </Grid>
         )
       }
+
     </Paper >
   );
 }

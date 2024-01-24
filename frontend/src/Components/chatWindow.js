@@ -20,12 +20,10 @@ const ChatWindow = (props) => {
     <Paper className="container"
       elevation={3}
       style={{
-        maxWidth: '350px',
-        width: '80vw',
-        padding: '20px',
-        height: '80vh',
+        height: '95vh',
         display: 'flex',
         flexDirection: 'column',
+        padding: '10px'
       }}>
 
       <div className="message-container" style={{ flex: 1, overflowY: 'auto', marginBottom: '16px' }}>
