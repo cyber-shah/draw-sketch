@@ -6,6 +6,7 @@ import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/chatWindow.js';
 import Canvas from './Components/drawingCanvas/drawingCanvas.js';
 import Chance from 'chance';
+import DrawingToolbar from './Components/Toolbars/mainToolbar';
 const chance = new Chance()
 
 const css = {
@@ -92,6 +93,8 @@ function App() {
 
           <Grid container spacing={2} style={{ width: "100vw" }}>
             <Grid item xs={9} >
+
+              <DrawingToolbar />
               <Canvas />
             </Grid>
 
