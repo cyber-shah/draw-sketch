@@ -9,9 +9,14 @@ export default function Canvas() {
   const [isDrawing, setIsDrawing] = useState(false);
   // ---------------------------- HOOKS ---------------------------- //
 
+  // =========================== MOUSE EVENT HANDLERS =========================== //
   const handleMouseDown = () => {
     setIsDrawing(true);
     setLines([...lines, []]);
+  };
+
+  const handleMouseUp = () => {
+    setIsDrawing(false);
   };
 
   const handleMouseMove = (e) => {
@@ -32,11 +37,10 @@ export default function Canvas() {
       ])
     );
   };
+  // =========================== MOUSE EVENT HANDLERS =========================== //
 
-  const handleMouseUp = () => {
-    setIsDrawing(false);
-  };
 
+  // =========================== CANVAS EVENT LISTENERS =========================== //
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -50,13 +54,16 @@ export default function Canvas() {
       canvas.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDrawing, lines]);
+  // =========================== CANVAS EVENT LISTENERS =========================== //
 
+  // ============================ RETURN ============================ //
   return (
     <Stage
       width={window.innerWidth}
       height={window.innerHeight}
       ref={canvasRef}
     >
+      {/* For each line in lines, create a Line component with the points of the line. */}
       <Layer>
         {lines.map((line, index) => (
           <Line
