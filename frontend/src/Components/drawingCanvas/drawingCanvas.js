@@ -71,7 +71,7 @@ export default function Canvas(props) {
           position: 'absolute',
           left: cursor.x - 12, // Adjust the position to center the icon
           top: cursor.y - 12,
-          color: 'red',
+          color: props.color,
           fontSize: '24px',
         }}
       >

@@ -49,10 +49,9 @@ class Room(Namespace):
 
     def on_connect(self):
         sender = request.args.get('sender')
-        print(request)
+        color = request.args.get('color')
         if sender:
-            self.clients[sender] = request.sid
-            print("Client {} is now known as {}".format(request.sid, sender))
+            self.clients[sender] = {'sid': request.sid, 'color': color}
             emit(
                 'message',
                 {

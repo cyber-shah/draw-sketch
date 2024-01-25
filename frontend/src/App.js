@@ -7,6 +7,10 @@ import ChatWindow from './Components/chatWindow.js';
 import Canvas from './Components/drawingCanvas/drawingCanvas.js';
 import Chance from 'chance';
 import DrawingToolbar from './Components/Toolbars/mainToolbar';
+
+
+
+
 const chance = new Chance()
 
 const css = {
@@ -34,6 +38,7 @@ function App() {
   const [socketInstance, setSocketInstance] = useState(null);
   const [lines, setLines] = useState([]);
   const [cursors, setCursors] = useState({});
+  const [color, setColor] = useState(null);
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
@@ -52,6 +57,7 @@ function App() {
         roomNumber: roomNumber,
       },
     });
+    console.log(chance.color({ format: 'hex' }));
     setSocketInstance(socketInstance);
 
     // Listen to the connect event from the server
@@ -80,6 +86,7 @@ function App() {
       }));
     });
 
+    setColor(chance.color({ format: 'hex' }));
   };
 
   const sendMessage = () => {
@@ -120,6 +127,7 @@ function App() {
                 cursors={cursors} setCursors={setCursors}
                 name={name} socket={socketInstance}
                 lines={lines} setLines={setLines}
+                color={color}
               />
             </Grid>
 
@@ -131,6 +139,7 @@ function App() {
                 setMessage={setMessage}
                 message={message}
                 name={name}
+                color={color}
               />
             </Grid>
 
