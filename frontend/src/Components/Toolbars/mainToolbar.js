@@ -2,17 +2,33 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import ToolbarIconButton from './toolbarIconButton';
+import ExtendedToolbar from './extendedToolbar';
+
+
+
+const iconsData = [
+  { key: 'pencil', icon: faPencilAlt, tooltip: 'Pencil', colorPicker: true, brushSizePicker: true },
+  { key: 'square', icon: faSquare, tooltip: 'Square', colorPicker: true, brushSizePicker: true },
+  { key: 'circle', icon: faCircle, tooltip: 'Circle', colorPicker: true, brushSizePicker: true },
+  { key: 'font', icon: faFont, tooltip: 'Font', colorPicker: true, brushSizePicker: false },
+  { key: 'save', icon: faSave, tooltip: 'Save', colorPicker: false, brushSizePicker: false },
+  { key: 'eraser', icon: faEraser, tooltip: 'Eraser', colorPicker: false, brushSizePicker: true },
+  { key: 'trash', icon: faTrashAlt, tooltip: 'Trash', colorPicker: false, brushSizePicker: false },
+];
 
 const DrawingToolbar = () => {
   const [activeIcon, setActiveIcon] = useState(null);
 
   const handleIconClick = (icon) => {
     setActiveIcon(icon === activeIcon ? null : icon);
-    // Add your logic here for handling the click event for each icon
   };
+
+  const getSelectedToolData = () => {
+    return iconsData.find((tool) => tool.key === activeIcon) || {};
+  };
+
   return (
     <Box
       display="flex"
@@ -30,48 +46,16 @@ const DrawingToolbar = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            color={activeIcon === 'pencil' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('pencil')}
-          >
-            <FontAwesomeIcon icon={faPencilAlt} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'square' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('square')}
-          >
-            <FontAwesomeIcon icon={faSquare} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'circle' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('circle')}
-          >
-            <FontAwesomeIcon icon={faCircle} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'font' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('font')}
-          >
-            <FontAwesomeIcon icon={faFont} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'save' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('save')}
-          >
-            <FontAwesomeIcon icon={faSave} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'eraser' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('eraser')}
-          >
-            <FontAwesomeIcon icon={faEraser} />
-          </IconButton>
-          <IconButton
-            color={activeIcon === 'trash' ? 'primary' : 'inherit'}
-            onClick={() => handleIconClick('trash')}
-          >
-            <FontAwesomeIcon icon={faTrashAlt} />
-          </IconButton>
+          {iconsData.map(({ key, icon, tooltip }) => (
+            <ToolbarIconButton
+              key={key}
+              active={activeIcon === key}
+              onClick={() => handleIconClick(key)}
+              icon={icon}
+              tooltip={tooltip}
+            />
+          ))}
+          {activeIcon && <ExtendedToolbar toolData={getSelectedToolData()} />}
         </Toolbar>
       </Paper>
     </Box>
@@ -79,4 +63,3 @@ const DrawingToolbar = () => {
 };
 
 export default DrawingToolbar;
-

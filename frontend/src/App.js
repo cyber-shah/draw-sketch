@@ -1,7 +1,7 @@
 import './App.css';
 import { useState, } from 'react';
 import io from 'socket.io-client';
-import { Paper, Typography, Box, Grid } from '@mui/material';
+import { Paper, Typography, Box, Grid, linkClasses } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/chatWindow.js';
 import Canvas from './Components/drawingCanvas/drawingCanvas.js';
@@ -32,6 +32,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [roomNumber, setRoomNumber] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
+  const [lines, setLines] = useState([]);
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
@@ -63,6 +64,14 @@ function App() {
     socketInstance.on('message', (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
+
+    // Listen for INCOMING drawn lines and update the Canvas component
+    socketInstance.on('drawLines', (data) => {
+      // Update Canvas component with the received lines
+      setLines(data['payload'])
+      console.log('drawn lines received');
+      console.log(data);
+    });
   };
 
   const sendMessage = () => {
@@ -92,10 +101,10 @@ function App() {
         ) : (
 
           <Grid container spacing={2} style={{ width: "100vw" }}>
-            <Grid item xs={9} >
 
+            <Grid item xs={9} >
               <DrawingToolbar />
-              <Canvas />
+              <Canvas name={name} socket={socketInstance} lines={lines} setLines={setLines} />
             </Grid>
 
 
@@ -108,7 +117,6 @@ function App() {
                 name={name}
               />
             </Grid>
-
 
           </Grid>
         )
