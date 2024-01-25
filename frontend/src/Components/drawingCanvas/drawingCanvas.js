@@ -1,6 +1,8 @@
-import { Paper, Typography, Box, } from '@mui/material';
+import { Paper, Typography, Box, Icon, } from '@mui/material';
 import { Stage, Layer, Line } from 'react-konva';
 import { useRef, useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import NorthWestOutlinedIcon from '@mui/icons-material/NorthWestOutlined';
 
 // TODO: user transform from react-konva to make the canvas responsive
 // TODO: add zoom in and out functionality
@@ -21,36 +23,67 @@ export default function Canvas(props) {
 
   const handleMouseUp = () => {
     setIsDrawing(false);
-    // TODO : maybe just emit last line instead of all lines
-    props.socket.emit('drawLines', {
-      "response": "success",
-      "sender": props.name,
-      "payload": props.lines,
-    });
-    console.log('emitted');
   };
 
   const handleMouseMove = (e) => {
-    if (!isDrawing) {
-      return;
-    }
-
     const stage = canvasRef.current.getStage();
     const point = stage.getPointerPosition();
-    const lastLine = props.lines[props.lines.length - 1];
 
-    // append new points to the last line array
-    props.setLines(
-      props.lines.slice(0, -1).concat([
-        [...lastLine, {
-          x: point.x,
-          y: point.y,
-        }],
-      ])
-    );
+    // Emit the cursor position to other users
+    props.socket.emit('cursorUpdate', {
+      response: 'success',
+      sender: props.name,
+      payload: {
+        x: point.x,
+        y: point.y,
+      },
+    });
+
+    if (isDrawing) {
+      const lastLine = props.lines[props.lines.length - 1];
+
+      // Append new points to the last line array
+      const updatedLines = props.lines.slice(0, -1).concat([
+        [...lastLine, { x: point.x, y: point.y }],
+      ]);
+
+      // Set the updated lines immediately
+      props.setLines(updatedLines);
+
+      // Emit the drawn lines to other users
+      // TODO: instead of emitting the entire lines array, only emit the new points
+      // BUG: when a new user joins the room, the canvas is cleared
+      props.socket.emit('drawLines', {
+        response: 'success',
+        sender: props.name,
+        payload: updatedLines,
+      });
+    }
   };
   // =========================== MOUSE EVENT HANDLERS =========================== //
 
+  // =========================== RENDER CURSORS =========================== //
+  const renderCursors = () => {
+    return Object.entries(props.cursors).map(([username, cursor]) => (
+      <div
+        key={username}
+        style={{
+          position: 'absolute',
+          left: cursor.x - 12, // Adjust the position to center the icon
+          top: cursor.y - 12,
+          color: 'red',
+          fontSize: '24px',
+        }}
+      >
+        <Icon component={NorthWestOutlinedIcon} />
+        <Typography variant='caption'>{username}</Typography>
+        {console.log(username)}
+      </div>
+    ));
+  };
+
+
+  // =========================== RENDER CURSORS ======================================//
 
   // =========================== CANVAS EVENT LISTENERS =========================== //
   useEffect(() => {
@@ -72,6 +105,8 @@ export default function Canvas(props) {
   return (
     <Box style={{ position: 'relative' }}>
 
+      {/* Render the cursors */}
+      {renderCursors()}
       {/* Use absolute positioning for the Stage */}
       <Stage
         width={window.innerWidth}
@@ -90,6 +125,8 @@ export default function Canvas(props) {
             />
           ))}
         </Layer>
+
+
       </Stage>
     </Box>
   );

@@ -100,15 +100,32 @@ class Room(Namespace):
 
     def on_drawLines(self, data):
         # for debug purposes
-        print(request)
-        print(data)
+        # print(data)
         # get the sender of the sender
         sender = request.args.get('sender')
         # if the sender is not None, then send the message
         if sender is not None:
-            print("Message from {}:".format(sender), data['payload'])
+            print(format(sender) + "drawed this line", data['payload'])
             emit(
                 'drawLines',
+                {"status": "success",
+                 "sender": sender,
+                 "payload": data['payload']
+                 },
+                broadcast=True)
+        else:
+            print("Unknown user sent a message")
+
+    def on_cursorUpdate(self, data):
+        # for debug purposes
+        # print(data['payload'])
+        # get the sender of the sender
+        sender = request.args.get('sender')
+        # if the sender is not None, then send the message
+        if sender is not None:
+            print(format(sender)+"moved his cursor to ", data['payload'])
+            emit(
+                'cursorUpdate',
                 {"status": "success",
                  "sender": sender,
                  "payload": data['payload']

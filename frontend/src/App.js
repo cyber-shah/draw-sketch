@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, } from 'react';
+import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { Paper, Typography, Box, Grid, linkClasses } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
@@ -33,13 +33,13 @@ function App() {
   const [roomNumber, setRoomNumber] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
   const [lines, setLines] = useState([]);
+  const [cursors, setCursors] = useState({});
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
   const connectToServer = (command) => {
     // TODO: make sure none of the fields are empty
     // TODO: get multiple rooms workin
-
 
     // what we do here:
     // 1. create a socket instance with senders name and room number
@@ -69,9 +69,17 @@ function App() {
     socketInstance.on('drawLines', (data) => {
       // Update Canvas component with the received lines
       setLines(data['payload'])
-      console.log('drawn lines received');
-      console.log(data);
     });
+
+    // Listen for INCOMING cursor positions and update the Canvas component
+    socketInstance.on('cursorUpdate', (cursorData) => {
+      // Update the cursors state with the received cursor data
+      setCursors((prevCursors) => ({
+        ...prevCursors,
+        [cursorData.sender]: cursorData.payload,
+      }));
+    });
+
   };
 
   const sendMessage = () => {
@@ -81,6 +89,10 @@ function App() {
       "payload": message,
     });
   };
+
+  useEffect(() => {
+    console.log(cursors);
+  }, [cursors])
 
   // ---------------------------- FUNCTIONS -------------------------------------------
 
@@ -104,7 +116,11 @@ function App() {
 
             <Grid item xs={9} >
               <DrawingToolbar />
-              <Canvas name={name} socket={socketInstance} lines={lines} setLines={setLines} />
+              <Canvas
+                cursors={cursors} setCursors={setCursors}
+                name={name} socket={socketInstance}
+                lines={lines} setLines={setLines}
+              />
             </Grid>
 
 
