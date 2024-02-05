@@ -1,13 +1,14 @@
 import './App.css';
 import { useState } from 'react';
 import io from 'socket.io-client';
-import { Paper, Grid } from '@mui/material';
+import { Icon, Paper, Grid, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/chatWindow.js';
 import Canvas from './Components/drawingCanvas/drawingCanvas.js';
 import Chance from 'chance';
 import DrawingToolbar from './Components/Toolbars/mainToolbar';
 
+import NorthWestOutlinedIcon from '@mui/icons-material/NorthWestOutlined';
 
 
 
@@ -39,6 +40,10 @@ function App() {
   const [lines, setLines] = useState([]);
   const [cursors, setCursors] = useState({});
   const [color, setColor] = useState(null);
+
+  // states for the toolbar :
+  const [selectedColor, setSelectedColor] = useState('#000000'); // Default color is black
+  const [brushSize, setBrushSize] = useState(5); // Default brush size is 5
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
@@ -98,6 +103,33 @@ function App() {
   };
   // ---------------------------- FUNCTIONS -------------------------------------------
 
+  // =========================== RENDER CURSORS =========================== //
+  const renderCursors = () => {
+    return Object.entries(cursors).map(([username, cursor]) => {
+      if (username !== name) {
+        return (
+          <div
+            key={username}
+            style={{
+              position: 'absolute',
+              left: cursor.x - 12,
+              top: cursor.y - 12,
+              color: color,
+              fontSize: '24px',
+            }}
+          >
+            <Icon component={NorthWestOutlinedIcon} />
+            <Typography variant='caption'>{username}</Typography>
+            {console.log(username)}
+          </div>
+        );
+      } else {
+        return null;
+      }
+    });
+  };
+  // =========================== RENDER CURSORS ======================================//
+
 
   // ---------------------------- RETURN -------------------------------------------
   return (
@@ -116,13 +148,24 @@ function App() {
 
           <Grid container spacing={2} style={{ width: "100vw" }}>
 
+            {/* whenver props.cursors state changes, it triggers a rerender of that component.
+            This re-rendering process is cascading, meaning it can also trigger re-renders in child components that depend on the updated state.
+            and therefore the canvas component will be re-rendered whenever the cursor state changes 
+            */}
+            {renderCursors()}
+
             <Grid item xs={9} >
-              <DrawingToolbar />
+              <DrawingToolbar
+                setSelectedColor={setSelectedColor} selectedColor={selectedColor}
+                setBrushSize={setBrushSize} brushSize={brushSize}
+              />
               <Canvas
                 cursors={cursors} setCursors={setCursors}
                 name={name} socket={socketInstance}
                 lines={lines} setLines={setLines}
                 color={color}
+                selectedColor={selectedColor}
+                brushSize={brushSize}
               />
             </Grid>
 
