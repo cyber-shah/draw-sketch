@@ -4,6 +4,11 @@ import { useRef, useState, useEffect } from 'react';
 
 // TODO: user transform from react-konva to make the canvas responsive
 // TODO: add zoom in and out functionality
+//
+//
+// TODO: useMemo to improve performance
+//
+// TODO: find out why does this re render itself when the cursor moves
 // add undo and redo functionality
 export default function Canvas(props) {
   // ---------------------------- HOOKS ---------------------------- //
@@ -28,9 +33,7 @@ export default function Canvas(props) {
   // 1. emit the cursor position to other users
   // 2. if the user is drawing, append new points to the last line array and set the updated lines immediately
   // TODO: instead of emitting the entire lines array, only emit the new points
-  //
-  //
-  // TODO: useMemo to improve performance
+
   // BUG: when a new user joins the room, the canvas is cleared
   // BUG: screen resizes takes some time to update the canvas
   const handleMouseMove = (e) => {
@@ -47,7 +50,7 @@ export default function Canvas(props) {
       },
     });
 
-    if (isDrawing) {
+    if (isDrawing && props.selectedTool === 'pencil') {
       const lastLine = props.lines[props.lines.length - 1];
 
       // Append new points to the last line array
@@ -86,6 +89,13 @@ export default function Canvas(props) {
       canvas.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDrawing, props.lines]);
+
+
+  useEffect(() => {
+    if (props.selectedTool === 'trash') {
+      props.setLines([]);
+    }
+  }, [props.selectedTool]);
   // =========================== CANVAS EVENT LISTENERS =========================== //
 
   // ============================ RETURN ============================ //
@@ -99,7 +109,10 @@ export default function Canvas(props) {
         ref={canvasRef}
         style={{ position: 'absolute' }}
       >
-        {/* For each line in lines, create a Line component with the points of the line. */}
+
+        {/* For each line in lines, create a Line component with the points of the line.
+        TODO: find a better way to do this
+        */}
         <Layer>
           {props.lines.map((line, index) => (
             line[0] &&
@@ -111,7 +124,6 @@ export default function Canvas(props) {
             />
           ))}
         </Layer>
-
 
       </Stage>
     </Box>

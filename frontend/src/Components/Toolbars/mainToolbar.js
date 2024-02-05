@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
-import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt, faUndo, faRedo, faMousePointer } from '@fortawesome/free-solid-svg-icons';
 import ToolbarIconButton from './toolbarIconButton';
 import ExtendedToolbar from './extendedToolbar';
 
 
 const iconsData = [
   { key: 'undo', icon: faUndo, tooltip: 'Undo', colorPicker: false, brushSizePicker: false },
+  { key: 'pointer', icon: faMousePointer, tooltip: 'pointer', colorPicker: false, brushSizePicker: false },
   { key: 'pencil', icon: faPencilAlt, tooltip: 'Pencil', colorPicker: true, brushSizePicker: true },
   { key: 'square', icon: faSquare, tooltip: 'Square', colorPicker: true, brushSizePicker: true },
   { key: 'circle', icon: faCircle, tooltip: 'Circle', colorPicker: true, brushSizePicker: true },
@@ -17,21 +18,21 @@ const iconsData = [
   { key: 'eraser', icon: faEraser, tooltip: 'Eraser', colorPicker: false, brushSizePicker: true },
   { key: 'trash', icon: faTrashAlt, tooltip: 'Trash', colorPicker: false, brushSizePicker: false },
   { key: 'redo', icon: faRedo, tooltip: 'Redo', colorPicker: false, brushSizePicker: false },
+
 ];
 
 
 const DrawingToolbar = (props) => {
 
-  const [activeIcon, setActiveIcon] = useState(null);
 
   // handles the click and sets the active icon
   const handleIconClick = (icon) => {
-    setActiveIcon(icon === activeIcon ? null : icon);
+    props.setSelectedTool(icon === props.selectedTool ? null : icon);
   };
 
   // returns the data of the selected tool
   const getSelectedToolData = () => {
-    return iconsData.find((tool) => tool.key === activeIcon) || {};
+    return iconsData.find((tool) => tool.key === props.selectedTool) || {};
   };
 
   return (
@@ -54,13 +55,13 @@ const DrawingToolbar = (props) => {
           {iconsData.map(({ key, icon, tooltip }) => (
             <ToolbarIconButton
               key={key}
-              active={activeIcon === key}
+              active={props.selectedTool === key}
               onClick={() => handleIconClick(key)}
               icon={icon}
               tooltip={tooltip}
             />
           ))}
-          {activeIcon && <ExtendedToolbar
+          {props.selectedTool && <ExtendedToolbar
             setSelectedColor={props.setSelectedColor} selectedColor={props.selectedColor}
             setBrushSize={props.setBrushSize} brushSize={props.brushSize}
             toolData={getSelectedToolData()} />}

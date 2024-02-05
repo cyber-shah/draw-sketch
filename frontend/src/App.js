@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { Icon, Paper, Grid, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
@@ -37,13 +37,18 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [roomNumber, setRoomNumber] = useState('');
   const [socketInstance, setSocketInstance] = useState(null);
+
+  // states for the canvas: 
   const [lines, setLines] = useState([]);
   const [cursors, setCursors] = useState({});
   const [color, setColor] = useState(null);
+  const [rectangles, setRectangles] = useState([]);
+  const [circles, setCircles] = useState([]);
 
   // states for the toolbar :
   const [selectedColor, setSelectedColor] = useState('#000000'); // Default color is black
   const [brushSize, setBrushSize] = useState(5); // Default brush size is 5
+  const [selectedTool, setSelectedTool] = useState('pencil');
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
@@ -104,6 +109,7 @@ function App() {
   // ---------------------------- FUNCTIONS -------------------------------------------
 
   // =========================== RENDER CURSORS =========================== //
+  // TODO: cursors are off by large margin
   const renderCursors = () => {
     return Object.entries(cursors).map(([username, cursor]) => {
       if (username !== name) {
@@ -112,8 +118,8 @@ function App() {
             key={username}
             style={{
               position: 'absolute',
-              left: cursor.x - 12,
-              top: cursor.y - 12,
+              left: cursor.x,
+              top: cursor.y,
               color: color,
               fontSize: '24px',
             }}
@@ -129,6 +135,17 @@ function App() {
     });
   };
   // =========================== RENDER CURSORS ======================================//
+
+
+  // =========================== USE EFFECT ======================================//
+  useEffect(() => {
+    if (selectedTool === 'undo') {
+      console.log(lines);
+      lines.pop();
+      console.log(lines);
+    }
+  }, [selectedTool]);
+
 
 
   // ---------------------------- RETURN -------------------------------------------
@@ -158,6 +175,7 @@ function App() {
               <DrawingToolbar
                 setSelectedColor={setSelectedColor} selectedColor={selectedColor}
                 setBrushSize={setBrushSize} brushSize={brushSize}
+                setSelectedTool={setSelectedTool} selectedTool={selectedTool}
               />
               <Canvas
                 cursors={cursors} setCursors={setCursors}
@@ -166,6 +184,9 @@ function App() {
                 color={color}
                 selectedColor={selectedColor}
                 brushSize={brushSize}
+                selectedTool={selectedTool}
+                rectangles={rectangles} setRectangles={setRectangles}
+                circles={circles} setCircles={setCircles}
               />
             </Grid>
 
