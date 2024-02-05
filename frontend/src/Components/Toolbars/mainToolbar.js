@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
-import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt, faUndo, faRedo } from '@fortawesome/free-solid-svg-icons';
 import ToolbarIconButton from './toolbarIconButton';
 import ExtendedToolbar from './extendedToolbar';
 
 
 
 const iconsData = [
+  { key: 'undo', icon: faUndo, tooltip: 'Undo', colorPicker: false, brushSizePicker: false },
   { key: 'pencil', icon: faPencilAlt, tooltip: 'Pencil', colorPicker: true, brushSizePicker: true },
   { key: 'square', icon: faSquare, tooltip: 'Square', colorPicker: true, brushSizePicker: true },
   { key: 'circle', icon: faCircle, tooltip: 'Circle', colorPicker: true, brushSizePicker: true },
@@ -16,6 +17,8 @@ const iconsData = [
   { key: 'save', icon: faSave, tooltip: 'Save', colorPicker: false, brushSizePicker: false },
   { key: 'eraser', icon: faEraser, tooltip: 'Eraser', colorPicker: false, brushSizePicker: true },
   { key: 'trash', icon: faTrashAlt, tooltip: 'Trash', colorPicker: false, brushSizePicker: false },
+  { key: 'redo', icon: faRedo, tooltip: 'Redo', colorPicker: false, brushSizePicker: false },
+
 ];
 
 const DrawingToolbar = () => {
@@ -38,7 +41,7 @@ const DrawingToolbar = () => {
       <Paper
         elevation={2}
         style={{
-          maxWidth: '600px',
+          maxWidth: '900px',
           borderRadius: '16px',
           background: '#f5f5f5',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',

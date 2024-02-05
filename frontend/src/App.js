@@ -1,7 +1,7 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import io from 'socket.io-client';
-import { Paper, Typography, Box, Grid, linkClasses } from '@mui/material';
+import { Paper, Grid } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/chatWindow.js';
 import Canvas from './Components/drawingCanvas/drawingCanvas.js';
@@ -96,11 +96,6 @@ function App() {
       "payload": message,
     });
   };
-
-  useEffect(() => {
-    console.log(cursors);
-  }, [cursors])
-
   // ---------------------------- FUNCTIONS -------------------------------------------
 
 
