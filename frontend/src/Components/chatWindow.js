@@ -5,6 +5,7 @@ const ChatWindow = (props) => {
   const isCurrentUser = (msg) => msg.sender === props.name;
 
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -100,6 +101,7 @@ const ChatWindow = (props) => {
         InputProps={{
           style: { padding: '12px', fontWeight: 'normal' },
         }}
+        inputRef={inputRef}
       />
 
       <Button
@@ -110,6 +112,8 @@ const ChatWindow = (props) => {
         onClick={() => {
           props.sendMessage(props.message);
           scrollToBottom();
+          props.setMessage('');
+          inputRef.current.value = '';
         }}
         style={{ borderRadius: '20px' }}
       >
