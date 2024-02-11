@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { Icon, Paper, Grid, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
@@ -106,6 +106,32 @@ function App() {
       "payload": message,
     });
   };
+
+
+
+  const canvasRef = useRef();
+
+  const handleSaveClick = () => {
+    const stage = canvasRef.current.getStage();
+
+    if (stage) {
+      const dataURL = stage.toDataURL();
+
+      // Create a temporary anchor element
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.href = dataURL;
+      downloadAnchor.download = 'canvas_image.png'; // You can change the filename and extension here
+
+      // Append the anchor to the body and trigger a click on it
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+
+      // Remove the anchor from the body
+      document.body.removeChild(downloadAnchor);
+    }
+  };
+
+
   // ---------------------------- FUNCTIONS -------------------------------------------
 
   // =========================== RENDER CURSORS =========================== //
@@ -176,8 +202,10 @@ function App() {
                 setSelectedColor={setSelectedColor} selectedColor={selectedColor}
                 setBrushSize={setBrushSize} brushSize={brushSize}
                 setSelectedTool={setSelectedTool} selectedTool={selectedTool}
+                handleSaveClick={handleSaveClick}
               />
               <Canvas
+                canvasRef={canvasRef}
                 cursors={cursors} setCursors={setCursors}
                 name={name} socket={socketInstance}
                 lines={lines} setLines={setLines}

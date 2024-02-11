@@ -2,28 +2,22 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
-import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt, faUndo, faRedo, faMousePointer } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faSquare, faCircle, faFont, faSave, faEraser, faTrashAlt, faUndo, faMousePointer } from '@fortawesome/free-solid-svg-icons';
 import ToolbarIconButton from './toolbarIconButton';
 import ExtendedToolbar from './extendedToolbar';
 
 
 const iconsData = [
-  { key: 'undo', icon: faUndo, tooltip: 'Undo', colorPicker: false, brushSizePicker: false },
+  // { key: 'undo', icon: faUndo, tooltip: 'Undo', colorPicker: false, brushSizePicker: false },
   { key: 'pointer', icon: faMousePointer, tooltip: 'pointer', colorPicker: false, brushSizePicker: false },
   { key: 'pencil', icon: faPencilAlt, tooltip: 'Pencil', colorPicker: true, brushSizePicker: true },
-  { key: 'square', icon: faSquare, tooltip: 'Square', colorPicker: true, brushSizePicker: true },
-  { key: 'circle', icon: faCircle, tooltip: 'Circle', colorPicker: true, brushSizePicker: true },
-  { key: 'font', icon: faFont, tooltip: 'Font', colorPicker: true, brushSizePicker: false },
   { key: 'save', icon: faSave, tooltip: 'Save', colorPicker: false, brushSizePicker: false },
   { key: 'eraser', icon: faEraser, tooltip: 'Eraser', colorPicker: false, brushSizePicker: true },
   { key: 'trash', icon: faTrashAlt, tooltip: 'Trash', colorPicker: false, brushSizePicker: false },
-  { key: 'redo', icon: faRedo, tooltip: 'Redo', colorPicker: false, brushSizePicker: false },
-
 ];
 
 
 const DrawingToolbar = (props) => {
-
 
   // handles the click and sets the active icon
   const handleIconClick = (icon) => {
@@ -45,7 +39,7 @@ const DrawingToolbar = (props) => {
         elevation={2}
         style={{
           maxWidth: '900px',
-          borderRadius: '16px',
+          borderRadius: '20px',
           background: '#f5f5f5',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
           position: 'relative',
@@ -56,15 +50,28 @@ const DrawingToolbar = (props) => {
             <ToolbarIconButton
               key={key}
               active={props.selectedTool === key}
-              onClick={() => handleIconClick(key)}
+              onClick={() => {
+                if (key === 'save') {
+                  props.handleSaveClick();
+                } else {
+                  handleIconClick(key);
+                }
+              }}
               icon={icon}
               tooltip={tooltip}
             />
           ))}
-          {props.selectedTool && <ExtendedToolbar
-            setSelectedColor={props.setSelectedColor} selectedColor={props.selectedColor}
-            setBrushSize={props.setBrushSize} brushSize={props.brushSize}
-            toolData={getSelectedToolData()} />}
+
+          {props.selectedTool
+            && <ExtendedToolbar
+              setSelectedColor={props.setSelectedColor}
+              selectedColor={props.selectedColor}
+              setBrushSize={props.setBrushSize}
+              brushSize={props.brushSize}
+              toolData={getSelectedToolData()}
+            />
+          }
+
         </Toolbar>
       </Paper>
     </Box>

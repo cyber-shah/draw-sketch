@@ -5,16 +5,20 @@ import { useRef, useState, useEffect } from 'react';
 // TODO: user transform from react-konva to make the canvas responsive
 // TODO: add zoom in and out functionality
 //
-//
-// TODO: useMemo to improve performance
-//
 // TODO: find out why does this re render itself when the cursor moves
 // add undo and redo functionality
+
+
+
+
+
+
+
+
 export default function Canvas(props) {
   // ---------------------------- HOOKS ---------------------------- //
   // useRef works like useState but it doesn't cause a re-render when the value changes
   // and we can reference elements in the DOM with it and retrieve them later
-  const canvasRef = useRef();
   const [isDrawing, setIsDrawing] = useState(false);
   // ---------------------------- HOOKS ---------------------------- //
 
@@ -37,7 +41,7 @@ export default function Canvas(props) {
   // BUG: when a new user joins the room, the canvas is cleared
   // BUG: screen resizes takes some time to update the canvas
   const handleMouseMove = (e) => {
-    const stage = canvasRef.current.getStage();
+    const stage = props.canvasRef.current.getStage();
     const point = stage.getPointerPosition();
 
     // Emit the cursor position to other users
@@ -50,12 +54,19 @@ export default function Canvas(props) {
       },
     });
 
-    if (isDrawing && props.selectedTool === 'pencil') {
+    if (isDrawing && (props.selectedTool === 'pencil' || props.selectedTool === 'eraser')) {
       const lastLine = props.lines[props.lines.length - 1];
 
       // Append new points to the last line array
       const updatedLines = props.lines.slice(0, -1).concat([
-        [...lastLine, { x: point.x, y: point.y, color: props.selectedColor, size: props.brushSize }],
+        [...lastLine, {
+          points: [point.x, point.y],
+          x: point.x,
+          y: point.y,
+          color: props.selectedColor,
+          size: props.brushSize,
+          tool: props.selectedTool,
+        }],
       ]);
 
       // Set the updated lines immediately
@@ -77,7 +88,7 @@ export default function Canvas(props) {
   // once the user stops drawing, we want to remove the event listeners
   useEffect(() => {
     // uses useRef to get the canvas element
-    const canvas = canvasRef.current;
+    const canvas = props.canvasRef.current;
 
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mousemove', handleMouseMove);
@@ -106,7 +117,7 @@ export default function Canvas(props) {
       <Stage
         width={window.innerWidth * 0.73}
         height={window.innerHeight - 90}
-        ref={canvasRef}
+        ref={props.canvasRef}
         style={{ position: 'absolute' }}
       >
 
@@ -114,17 +125,26 @@ export default function Canvas(props) {
         TODO: find a better way to do this
         */}
         <Layer>
-          {props.lines.map((line, index) => (
-            line[0] &&
-            < Line
-              key={index}
-              points={line.flatMap((point) => [point.x, point.y])}
-              stroke={line[0].color}
-              strokeWidth={line[0].size}
-            />
-          ))}
+          {props.lines.map((line, index) => {
+            if (line[0]) {
+              return (
+                <Line
+                  key={index}
+                  globalCompositeOperation={
+                    line[0].tool === 'eraser' ? "destination-out" : "source-over"
+                  }
+                  points={line.flatMap((point) => [point.x, point.y])}
+                  stroke={line[0].color}
+                  strokeWidth={line[0].size}
+                  tension={0.1}
+                  lineCap="round"
+                />
+              );
+            } else {
+              return null; // or any other logic you want for false condition
+            }
+          })}
         </Layer>
-
       </Stage>
     </Box>
   );
