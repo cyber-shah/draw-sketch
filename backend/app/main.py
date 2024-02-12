@@ -25,8 +25,8 @@ def check_room():
         return jsonify({'exists': True})
     else:
         return jsonify({'exists': False})
-    """
+"""
 
 if __name__ == '__main__':
     create_room('chat')
-    socketio.run(app, host='localhost', port=55556, debug=True)
+    socketio.run(app, host='0.0.0.0', port=55556, allow_unsafe_werkzeug=True)

@@ -5,12 +5,13 @@ services:
     ports:
       - "3000:3000" # Adjust the port as needed
     volumes:
-      - ./frontend :/frontend # Mount your Node.js app directory
+      - ./frontend:/frontend # Mount your Node.js app directory
     command: >
       bash -c "
       cd frontend &&
-      ls &&
-      npm install && npm run build 
+      npm install && npm run build &&
+      npm install -g serve &&
+      serve -s build
       "
 
   flask:
@@ -22,7 +23,6 @@ services:
     command:  >
       bash -c "
       cd backend && 
-      ls &&
         pip install -r requirements.txt && 
         python3 app/main.py
       "
