@@ -1,0 +1,28 @@
+version: '3'
+services:
+  web:
+    image: node:21 # Use the appropriate Node.js version
+    ports:
+      - "3000:3000" # Adjust the port as needed
+    volumes:
+      - ./frontend :/frontend # Mount your Node.js app directory
+    command: >
+      bash -c "
+      cd frontend &&
+      ls &&
+      npm install && npm run build 
+      "
+
+  flask:
+    image: python:3.11 
+    ports:
+      - "55556:55556" # hostport:containerport
+    volumes:
+      - ./backend:/backend 
+    command:  >
+      bash -c "
+      cd backend && 
+      ls &&
+        pip install -r requirements.txt && 
+        python3 app/main.py
+      "
