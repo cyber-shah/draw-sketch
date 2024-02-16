@@ -50,7 +50,7 @@ export default function LoginPage(props) {
             className="join-button"
             variant="contained"
             color="primary"
-            onClick={() => props.connectToServer('join', props.roomNumber)}
+            onClick={() => props.joinRoom(props.roomNumber)}
             fullWidth
             style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold', marginBottom: '10px' }}
           >
@@ -61,7 +61,7 @@ export default function LoginPage(props) {
             className="create-button"
             variant="contained"
             color="secondary"
-            onClick={() => props.connectToServer('create', props.roomNumber)}
+            onClick={() => props.joinRoom(props.roomNumber)}
             fullWidth
             style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold' }}
           >

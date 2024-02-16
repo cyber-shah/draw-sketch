@@ -72,10 +72,4 @@ python app.py  # for backend
 
 Explore and contribute to the codebase!
 
-Author
-
-Pranchal Shah
-cyber-shah@github
-
-
 Feel free to reach out for any questions or contributions. Happy drawing!
