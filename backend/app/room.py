@@ -46,28 +46,33 @@ class Room(Namespace):
         """
         super().__init__(namespace)
         self.clients = {}
+        print("Room started at " + namespace)
 
-    def on_connect(self):
-        sender = request.args.get('sender')
-        color = request.args.get('color')
-        if sender:
-            self.clients[sender] = {'sid': request.sid, 'color': color}
+    def on_connect(self, data):
+        print("Client connected: " + request.sid)
+
+
+    def on_join(self, data):
+        sender = data['sender']
+        print(sender)
+        if sender is not None:
+            self.clients[sender] = request.sid
+            print(self.clients)
             emit(
                 'message',
                 {
                     "status": "success",
                     "sender": "server",
-                    "payload": "User {} has connected".format(sender)
+                    "payload": "User {} has joined".format(sender)
                 },
                 broadcast=True
             )
-            print(self.clients)
+
 
     def on_disconnect(self):
         print("Client disconnected: " + request.sid)
-        print(request)
-        """
         sender = self.clients.get(request.sid, None)
+        print(sender)
         if sender is not None:
             socketio.emit(
                 'message',
@@ -76,14 +81,13 @@ class Room(Namespace):
                     "payload": "User {} has disconnected".format(sender)
                 },
             )
-        """
 
     def on_message(self, data):
         # for debug purposes
-        print(request)
-        print(data)
+        # print(request)
+        # print(data)
         # get the sender of the sender
-        sender = request.args.get('sender')
+        sender = data['sender']
         # if the sender is not None, then send the message
         if sender is not None:
             print("Message from {}:".format(sender), data['payload'])
@@ -101,7 +105,7 @@ class Room(Namespace):
         # for debug purposes
         # print(data)
         # get the sender of the sender
-        sender = request.args.get('sender')
+        sender = data['sender']
         # if the sender is not None, then send the message
         if sender is not None:
             print(format(sender) + "drawed this line", data['payload'])
@@ -118,11 +122,12 @@ class Room(Namespace):
     def on_cursorUpdate(self, data):
         # for debug purposes
         # print(data['payload'])
+        # print(data)
         # get the sender of the sender
-        sender = request.args.get('sender')
+        sender = data['sender']
         # if the sender is not None, then send the message
         if sender is not None:
-            print(format(sender)+"moved his cursor to ", data['payload'])
+            print(format(sender)+" moved his cursor to ", data['payload'])
             emit(
                 'cursorUpdate',
                 {"status": "success",
@@ -131,4 +136,4 @@ class Room(Namespace):
                  },
                 broadcast=True)
         else:
-            print("Unknown user sent a message")
+            print("cursor update issues")

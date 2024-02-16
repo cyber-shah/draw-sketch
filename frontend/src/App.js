@@ -12,8 +12,6 @@ import NorthWestOutlinedIcon from '@mui/icons-material/NorthWestOutlined';
 
 
 
-
-
 const chance = new Chance()
 
 const css = {
@@ -33,6 +31,7 @@ const css = {
 
 function App() {
   // ---------------------------- STATES -------------------------------------------
+  const [mainSocket, setMainSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [name, setName] = useState(chance.word({ syllables: 2 }));
@@ -56,14 +55,12 @@ function App() {
   // ---------------------------- FUNCTIONS -------------------------------------------
 
   // STEP 1: create the main socket instance and connect to the server
-  var mainSocket = null;
   const connectMainSocket = () => {
-    mainSocket = io('http://localhost:666', {
+    const mainSocket = io('http://localhost:666', {
     });
 
     mainSocket.on('connect', () => {
-      console.log('Connected to the server');
-      console.log(mainSocket);
+      setMainSocket(mainSocket);
     }, [mainSocket]);
   }
 
@@ -73,14 +70,38 @@ function App() {
 
     mainSocket.on('response', (data) => {
       // if the room exists, then connect to the room and set the socket instance
-      if (data.response === 'success') {
+      if (data.status === 'success') {
         const roomSocket = io(`http://localhost:666/room_${roomName}`, {
-          query: {
-            sender: name,
-            roomNumber: roomName,
-          },
         });
-        setRoomSocket(mainSocket);
+        roomSocket.emit('join', { roomName: roomName, sender: name });
+        roomSocket.on('connect', () => {
+          setRoomSocket(roomSocket);
+          setIsConnected(true);
+        });
+
+        console.log(roomSocket);
+        // Listen for INCOMING messages and update the state by appending the incoming message
+        roomSocket.on('message', (data) => {
+          setMessages((prevMessages) => [...prevMessages, data]);
+        });
+
+        // Listen for INCOMING drawn lines and update the Canvas component
+        roomSocket.on('drawLines', (data) => {
+          // Update Canvas component with the received lines
+          setLines(data['payload'])
+        });
+
+        // Listen for INCOMING cursor positions and update the Canvas component
+        roomSocket.on('cursorUpdate', (cursorData) => {
+          // Update the cursors state with the received cursor data
+          setCursors((prevCursors) => ({
+            ...prevCursors,
+            [cursorData.sender]: cursorData.payload,
+          }));
+        });
+
+        setColor(chance.color({ format: 'hex' }));
+
       }
       // otherwise, alert the user that the room already exists
       else {
@@ -94,66 +115,44 @@ function App() {
     mainSocket.emit('createRoom', { roomName: roomName, sender: name });
     // STEP 2: listen for the server's response
     mainSocket.on('response', (data) => {
-      if (data.response === 'success') {
-        setIsConnected(true);
-        setRoomSocket(mainSocket);
-      } else {
+      if (data.status === 'success') {
+        const roomSocket = io(`http://localhost:666/room_${roomName}`, {
+        });
+        roomSocket.emit('join', { roomName: roomName, sender: name });
+        roomSocket.on('connect', () => {
+          setRoomSocket(roomSocket);
+          setIsConnected(true);
+        });
+
+        console.log(roomSocket);
+        // Listen for INCOMING messages and update the state by appending the incoming message
+        roomSocket.on('message', (data) => {
+          setMessages((prevMessages) => [...prevMessages, data]);
+        });
+
+        // Listen for INCOMING drawn lines and update the Canvas component
+        roomSocket.on('drawLines', (data) => {
+          // Update Canvas component with the received lines
+          setLines(data['payload'])
+        });
+
+        // Listen for INCOMING cursor positions and update the Canvas component
+        roomSocket.on('cursorUpdate', (cursorData) => {
+          // Update the cursors state with the received cursor data
+          setCursors((prevCursors) => ({
+            ...prevCursors,
+            [cursorData.sender]: cursorData.payload,
+          }));
+        });
+
+        setColor(chance.color({ format: 'hex' }));
+      }
+      else {
         alert('Room already exists, please try another name.');
       }
     });
-  }
-
-
-
-
-
-
-
-  const connectToServer = (command) => {
-    // TODO: make sure none of the fields are empty
-    // TODO: clean up after disconnecting
-
-    // what we do here:
-    // 1. create a socket instance with senders name and room number
-    // 2. everything after that is handled by the server
-
-    // Connect to the server and send the sender
-    // URL is the address where client should connect to
-    const roomSocket = io(`http://localhost:666/room_${roomName}`, {
-      query: {
-        sender: name,
-        roomNumber: roomName,
-      },
-    });
-    setRoomSocket(roomSocket);
-
-    // Listen to the connect event from the server
-    roomSocket.on('connect', () => {
-      setIsConnected(true);
-    });
-
-    // Listen for INCOMING messages and update the state by appending the incoming message
-    roomSocket.on('message', (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
-
-    // Listen for INCOMING drawn lines and update the Canvas component
-    roomSocket.on('drawLines', (data) => {
-      // Update Canvas component with the received lines
-      setLines(data['payload'])
-    });
-
-    // Listen for INCOMING cursor positions and update the Canvas component
-    roomSocket.on('cursorUpdate', (cursorData) => {
-      // Update the cursors state with the received cursor data
-      setCursors((prevCursors) => ({
-        ...prevCursors,
-        [cursorData.sender]: cursorData.payload,
-      }));
-    });
-
-    setColor(chance.color({ format: 'hex' }));
   };
+
 
   const sendMessage = () => {
     roomSocket.emit('message', {
@@ -161,6 +160,7 @@ function App() {
       "sender": name,
       "payload": message,
     });
+    console.log(messages);
   };
   // ---------------------------- FUNCTIONS -------------------------------------------
 
@@ -242,7 +242,6 @@ function App() {
           <LoginPage
             joinRoom={joinRoom}
             createRoom={createRoom}
-            connectToServer={connectToServer}
             setRoomNumber={setRoomName}
             setName={setName}
             name={name}

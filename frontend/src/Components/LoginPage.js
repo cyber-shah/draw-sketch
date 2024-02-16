@@ -61,7 +61,7 @@ export default function LoginPage(props) {
             className="create-button"
             variant="contained"
             color="secondary"
-            onClick={() => props.joinRoom(props.roomNumber)}
+            onClick={() => props.createRoom(props.roomNumber)}
             fullWidth
             style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold' }}
           >
