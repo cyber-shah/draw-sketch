@@ -12,6 +12,9 @@ import NorthWestOutlinedIcon from '@mui/icons-material/NorthWestOutlined';
 
 
 
+// TODO : sends error about rooms to all because its on the main socket
+// Server sends a lot of new users messages to all users
+// drawing clears when new user joins
 const chance = new Chance()
 
 const css = {
@@ -103,10 +106,7 @@ function App() {
         setColor(chance.color({ format: 'hex' }));
 
       }
-      // otherwise, alert the user that the room already exists
-      else {
-        alert('Room already exists, please try another name.');
-      }
+
     });
   };
 
@@ -147,9 +147,7 @@ function App() {
 
         setColor(chance.color({ format: 'hex' }));
       }
-      else {
-        alert('Room already exists, please try another name.');
-      }
+
     });
   };
 

@@ -30,13 +30,21 @@ def createRoom(data):
 
 @socketio.on('joinRoom')
 def join_room(data):
-    data = request.get_json()
-    room_number = data.get('roomNumber')
-    username = data.get('username')
-    if f"/room_{room_number}" in rooms:
-        return jsonify({'status': 'success'})
-    else:
-        return jsonify({'status': 'error', 'message': 'Room does not exist'})
+    room_name = data['roomName']
+    # check if the room exists
+    if room_name not in rooms:
+        socketio.emit('response', {
+            'status': 'error', 
+            'message': f'Room {room_name} does not exist'
+        })
+        return
+    # join the room
+    namespace = rooms[room_name]
+    socketio.emit('response', {
+        'status': 'success', 
+        'message': f'Joined room {room_name}'
+    })
+    print(rooms)
 
 
 """
