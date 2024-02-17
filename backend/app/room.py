@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_socketio import SocketIO
 from flask_socketio import Namespace, emit
+from flask_socketio import join_room, leave_room
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
@@ -54,16 +55,15 @@ class Room(Namespace):
 
     def on_join(self, data):
         sender = data['sender']
-        print(sender)
         if sender is not None:
-            self.clients[sender] = request.sid
+            self.clients[request.sid] = sender 
             print(self.clients)
             emit(
-                'message',
+                'updateClients',
                 {
                     "status": "success",
                     "sender": "server",
-                    "payload": "User {} has joined".format(sender)
+                    "payload": self.clients 
                 },
                 broadcast=True
             )
@@ -75,11 +75,12 @@ class Room(Namespace):
         print(sender)
         if sender is not None:
             socketio.emit(
-                'message',
+                'updateClients',
                 {   "status": "success",
                     "sender": "server",
-                    "payload": "User {} has disconnected".format(sender)
-                },
+                    "payload": self.clients
+                 },
+                broadcast=True
             )
 
     def on_message(self, data):
@@ -108,7 +109,6 @@ class Room(Namespace):
         sender = data['sender']
         # if the sender is not None, then send the message
         if sender is not None:
-            print(format(sender) + "drawed this line", data['payload'])
             emit(
                 'drawLines',
                 {"status": "success",
@@ -127,7 +127,6 @@ class Room(Namespace):
         sender = data['sender']
         # if the sender is not None, then send the message
         if sender is not None:
-            print(format(sender)+" moved his cursor to ", data['payload'])
             emit(
                 'cursorUpdate',
                 {"status": "success",

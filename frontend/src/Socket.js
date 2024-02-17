@@ -54,7 +54,9 @@ export function createRoom(mainSocket, roomName, name) {
 }
 
 
-export function registerSocketEvents(roomSocket, setMessages, setCursors, setLines) {
+export function registerSocketEvents(
+  roomSocket, setMessages, setCursors, setLines, setClients, clients) {
+
   roomSocket.on('message', (data) => {
     setMessages((prevMessages) => [...prevMessages, data]);
   });
@@ -72,6 +74,11 @@ export function registerSocketEvents(roomSocket, setMessages, setCursors, setLin
       ...prevCursors,
       [cursorData.sender]: cursorData.payload,
     }));
+  });
+
+  roomSocket.on('updateClients', (data) => {
+    console.log(data);
+    setClients((prevClients) => [...prevClients, data]);
   });
 }
 

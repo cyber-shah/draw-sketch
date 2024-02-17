@@ -42,6 +42,8 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [roomSocket, setRoomSocket] = useState(null);
+  const [clients, setClients] = useState([]);
+
 
   // states for the canvas: 
   const [lines, setLines] = useState([]);
@@ -71,12 +73,13 @@ function App() {
 
   async function joinRoom() {
     const tempSocket = await Socket.joinRoom(mainSocket, roomName, name);
-    await setRoomSocket(tempSocket);
+    setRoomSocket(tempSocket);
     setIsConnected(true);
     setColor(chance.color({ format: 'hex' }));
   }
 
   async function createRoom() {
+    console.log(mainSocket);
     const tempSocket = await Socket.createRoom(mainSocket, roomName, name);
     // NOTE: React state updates, including setRoomSocket, are asynchronous, 
     // and they don't immediately update the state. 
@@ -86,17 +89,12 @@ function App() {
   }
 
   async function registerSockets() {
-    await Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines);
+    Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines, setClients, clients);
   }
-
-
-
 
   function sendMessage() {
     Socket.sendMessage(roomSocket, message, name, color);
   }
-
-
 
 
   /*
@@ -211,19 +209,15 @@ function App() {
 
   const handleSaveClick = (canvasRef) => {
     const stage = canvasRef.current.getStage();
-
     if (stage) {
       const dataURL = stage.toDataURL();
-
       // Create a temporary anchor element
       const downloadAnchor = document.createElement('a');
       downloadAnchor.href = dataURL;
-      downloadAnchor.download = 'canvas_image.png'; // You can change the filename and extension here
-
+      downloadAnchor.download = 'canvas_image.png';
       // Append the anchor to the body and trigger a click on it
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
-
       // Remove the anchor from the body
       document.body.removeChild(downloadAnchor);
     }
@@ -270,9 +264,10 @@ function App() {
     connectMainSocket();
   }, [])
 
-
   useEffect(() => {
-    Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines);
+    if (roomSocket) {
+      registerSockets();
+    }
   }, [roomSocket])
   // ---------------------------- RETURN -------------------------------------------
   return (
