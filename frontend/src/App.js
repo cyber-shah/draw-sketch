@@ -8,6 +8,7 @@ import Canvas from './Components/drawingCanvas/drawingCanvas.js';
 import Chance from 'chance';
 import DrawingToolbar from './Components/Toolbars/mainToolbar';
 
+import * as Socket from './Socket';
 import NorthWestOutlinedIcon from '@mui/icons-material/NorthWestOutlined';
 
 
@@ -56,21 +57,63 @@ function App() {
   // ---------------------------- STATES -------------------------------------------
 
   // ---------------------------- FUNCTIONS -------------------------------------------
+  /* In JavaScript, operations that involve asynchronous tasks, 
+   * like network requests or callbacks, are non-blocking. 
+   * This means that the next line of code will execute without waiting for 
+   * the asynchronous task to complete unless you explicitly use mechanisms 
+   * like Promises or async/await.
+   */
 
+  async function connectMainSocket() {
+    const tempSocket = await Socket.connectMainSocket();
+    setMainSocket(tempSocket);
+  }
+
+  async function joinRoom() {
+    const tempSocket = await Socket.joinRoom(mainSocket, roomName, name);
+    await setRoomSocket(tempSocket);
+    setIsConnected(true);
+    setColor(chance.color({ format: 'hex' }));
+  }
+
+  async function createRoom() {
+    const tempSocket = await Socket.createRoom(mainSocket, roomName, name);
+    // NOTE: React state updates, including setRoomSocket, are asynchronous, 
+    // and they don't immediately update the state. 
+    setRoomSocket(tempSocket);
+    setIsConnected(true);
+    setColor(chance.color({ format: 'hex' }));
+  }
+
+  async function registerSockets() {
+    await Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines);
+  }
+
+
+
+
+  function sendMessage() {
+    Socket.sendMessage(roomSocket, message, name, color);
+  }
+
+
+
+
+  /*
   // STEP 1: create the main socket instance and connect to the server
   const connectMainSocket = () => {
     const mainSocket = io('http://localhost:666', {
     });
-
+  
     mainSocket.on('connect', () => {
       setMainSocket(mainSocket);
     }, [mainSocket]);
   }
-
+  
   // if the user decides to join a room that already exists
   const joinRoom = () => {
     mainSocket.emit('joinRoom', { roomName: roomName, sender: name });
-
+  
     mainSocket.on('response', (data) => {
       // if the room exists, then connect to the room and set the socket instance
       if (data.status === 'success') {
@@ -81,19 +124,19 @@ function App() {
           setRoomSocket(roomSocket);
           setIsConnected(true);
         });
-
-        console.log(roomSocket);
+  
         // Listen for INCOMING messages and update the state by appending the incoming message
         roomSocket.on('message', (data) => {
           setMessages((prevMessages) => [...prevMessages, data]);
+          console.log(messages);
         });
-
+  
         // Listen for INCOMING drawn lines and update the Canvas component
         roomSocket.on('drawLines', (data) => {
           // Update Canvas component with the received lines
           setLines(data['payload'])
         });
-
+  
         // Listen for INCOMING cursor positions and update the Canvas component
         roomSocket.on('cursorUpdate', (cursorData) => {
           // Update the cursors state with the received cursor data
@@ -102,14 +145,14 @@ function App() {
             [cursorData.sender]: cursorData.payload,
           }));
         });
-
+  
         setColor(chance.color({ format: 'hex' }));
-
+  
       }
-
+  
     });
   };
-
+  
   // if the user decides to create a new room
   const createRoom = () => {
     mainSocket.emit('createRoom', { roomName: roomName, sender: name });
@@ -123,19 +166,19 @@ function App() {
           setRoomSocket(roomSocket);
           setIsConnected(true);
         });
-
-        console.log(roomSocket);
+  
         // Listen for INCOMING messages and update the state by appending the incoming message
         roomSocket.on('message', (data) => {
           setMessages((prevMessages) => [...prevMessages, data]);
+          console.log(messages);
         });
-
+  
         // Listen for INCOMING drawn lines and update the Canvas component
         roomSocket.on('drawLines', (data) => {
           // Update Canvas component with the received lines
           setLines(data['payload'])
         });
-
+  
         // Listen for INCOMING cursor positions and update the Canvas component
         roomSocket.on('cursorUpdate', (cursorData) => {
           // Update the cursors state with the received cursor data
@@ -144,14 +187,14 @@ function App() {
             [cursorData.sender]: cursorData.payload,
           }));
         });
-
+  
         setColor(chance.color({ format: 'hex' }));
       }
-
+  
     });
   };
-
-
+  
+  
   const sendMessage = () => {
     roomSocket.emit('message', {
       "response": "success",
@@ -160,12 +203,13 @@ function App() {
     });
     console.log(messages);
   };
+  */
   // ---------------------------- FUNCTIONS -------------------------------------------
 
   // =========================== SAVE CANVAS IMAGE =========================== //
   const canvasRef = useRef();
 
-  const handleSaveClick = () => {
+  const handleSaveClick = (canvasRef) => {
     const stage = canvasRef.current.getStage();
 
     if (stage) {
@@ -204,7 +248,6 @@ function App() {
           >
             <Icon component={NorthWestOutlinedIcon} />
             <Typography variant='caption'>{username}</Typography>
-            {console.log(username)}
           </div>
         );
       } else {
@@ -216,11 +259,9 @@ function App() {
 
 
   // =========================== USE EFFECT ======================================//
-  useEffect(() => {
+  useEffect((lines) => {
     if (selectedTool === 'undo') {
-      console.log(lines);
       lines.pop();
-      console.log(lines);
     }
   }, [selectedTool]);
 
@@ -229,6 +270,10 @@ function App() {
     connectMainSocket();
   }, [])
 
+
+  useEffect(() => {
+    Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines);
+  }, [roomSocket])
   // ---------------------------- RETURN -------------------------------------------
   return (
     <Paper
