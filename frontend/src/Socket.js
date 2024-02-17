@@ -9,49 +9,22 @@ export function connectMainSocket() {
   });
 }
 
-
 export function joinRoom(mainSocket, roomName, name) {
   return new Promise((resolve, reject) => {
-    // STEP 1: emit name of the room so that the server can check if it exists
-    mainSocket.emit('joinRoom', { roomName: roomName, sender: name });
-    // STEP 2: listen to the server's response:
-    mainSocket.on('response', (data) => {
-      // the room exists, then connect to the room and set the socket instance
-      if (data.status === 'success') {
-        const roomSocket = io(`http://localhost:666/room_${roomName}`);
-        roomSocket.emit('join', { roomName: roomName, sender: name });
-        roomSocket.on('connect', () => {
-        });
-        resolve(roomSocket);
-      }
-      else {
-        reject('Room does not exist');
-      }
-    });
+    // emit name of the room so that the server can check if it exists
+    mainSocket.emit('join', { room: roomName, sender: name });
+    resolve(mainSocket);
   });
 }
-
 
 export function createRoom(mainSocket, roomName, name) {
   return new Promise((resolve, reject) => {
-    // first emit the name so that the server cna CREATE the room
-    // for this to connect
-    mainSocket.emit('createRoom', { roomName: roomName, sender: name });
-    // STEP 2: listen to the server's response:
-    mainSocket.on('response', (data) => {
-      if (data.status === 'success') {
-        const roomSocket = io(`http://localhost:666/room_${roomName}`);
-        roomSocket.emit('join', { roomName: roomName, sender: name });
-        roomSocket.on('connect', () => {
-          resolve(roomSocket);
-        });
-      }
-      else {
-        reject('Room already exists');
-      }
-    });
+    // emit the name so that the server can CREATE the room
+    mainSocket.emit('join', { room: roomName, sender: name });
+    resolve(mainSocket);
   });
 }
+
 
 
 export function registerSocketEvents(

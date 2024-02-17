@@ -67,6 +67,7 @@ class Room(Namespace):
                 },
                 broadcast=True
             )
+            print("User {} has joined the room".format(sender))
 
 
     def on_disconnect(self):

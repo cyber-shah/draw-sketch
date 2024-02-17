@@ -1,63 +1,54 @@
-from flask import Flask
-from flask_socketio import SocketIO
-from room import Room
+from flask import Flask, render_template
+from flask_socketio import SocketIO, join_room, leave_room, emit
+
+from flask import request
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
-
+clients_by_room = {}
 rooms = {}
 
-@socketio.on('createRoom')
-def createRoom(data):
-    room_name = data['roomName']
-    # check if the room already exists
-    if room_name in rooms:
-        socketio.emit('response', {
-            'status': 'error', 
-            'message': f'Room {room_name} already exists'
-        })
-        return
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    # create the room and add it to the rooms dictionary
-    namespace = f"/room_{room_name}"
-    room = socketio.on_namespace(Room(namespace))
-    rooms[room_name] = namespace
-    socketio.emit('response', {
-        'status': 'success', 
-        'message': f'Room {room_name} created successfully'
-    })
-    print(rooms)
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected: " + request.sid)
 
-@socketio.on('joinRoom')
-def join_room(data):
-    room_name = data['roomName']
-    # check if the room exists
-    if room_name not in rooms:
-        socketio.emit('response', {
-            'status': 'error', 
-            'message': f'Room {room_name} does not exist'
-        })
-        return
-    # join the room
-    namespace = rooms[room_name]
-    socketio.emit('response', {
-        'status': 'success', 
-        'message': f'Joined room {room_name}'
-    })
-    print(rooms)
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Client disconnected: " + request.sid)
+    sender = clients_by_room.get(request.sid, None)
+    if sender is not None:
+        room = leave_user_room(request.sid)
+        update_clients(room)
 
+@socketio.on('join')
+def handle_join(data):
+    sender = data['sender']
+    room = data['room']
+    if sender is not None and room is not None:
+        if room not in rooms:
+            rooms[room] = {}
 
-"""
-@app.route('/check_room', methods=['POST'])
-def check_room():
-    data = request.get_json()
-    room_number = data.get('roomNumber')
+        rooms[room][sender] = {'sid': request.sid, 'status': 'online', 'timestamp': 'now'}       
+        join_room(room)
+        emit('updateClients', 
+             {
+             'status': 'success', 
+             'sender': 'server', 
+            'payload': rooms[room]
+             },
+             room=room)
+        print(rooms)
 
-    if f"/room_{room_number}" in rooms:
-        return jsonify({'exists': True})
-    else:
-        return jsonify({'exists': False})
-"""
+@socketio.on('message')
+def handle_message(data):
+    room = data['room']
+    sender = clients_by_room.get(request.sid, None)
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=666, allow_unsafe_werkzeug=True)
+
