@@ -31,7 +31,7 @@ def handle_join(data):
     if sender is not None and room is not None:
         if room not in rooms:
             rooms[room] = {}
-
+        # put the sender in the room
         rooms[room][sender] = {'sid': request.sid, 'status': 'online', 'timestamp': 'now'}       
         join_room(room)
         emit('updateClients', 
@@ -45,8 +45,18 @@ def handle_join(data):
 
 @socketio.on('message')
 def handle_message(data):
+    sender = data['sender']
     room = data['room']
-    sender = clients_by_room.get(request.sid, None)
+    if sender is not None and room is not None:
+        print(sender, room, data['payload'])
+        if sender in rooms[room]:
+            emit('message', 
+             {
+             'status': 'success', 
+             'sender': sender, 
+             'payload': data['payload']
+             },
+             room=room)
 
 
 if __name__ == '__main__':

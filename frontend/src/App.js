@@ -73,15 +73,6 @@ function App() {
 
   async function joinRoom() {
     if (!roomSocket) {
-      const tempSocket = await Socket.joinRoom(mainSocket, roomName, name);
-      setRoomSocket(tempSocket);
-      setIsConnected(true);
-      setColor(chance.color({ format: 'hex' }));
-    }
-  }
-
-  async function createRoom() {
-    if (!roomSocket) {
       console.log(mainSocket);
       const tempSocket = await Socket.createRoom(mainSocket, roomName, name);
       // NOTE: React state updates, including setRoomSocket, are asynchronous, 
@@ -92,12 +83,13 @@ function App() {
     }
   }
 
+  // TODO : EMIT messages from chat window instead of a function
   async function registerSockets() {
-    Socket.registerSocketEvents(roomSocket, setMessages, setCursors, setLines, setClients, clients);
+    Socket.registerSocketEvents(roomSocket, setMessages, messages, setCursors, setLines, setClients, clients);
   }
 
   function sendMessage() {
-    Socket.sendMessage(roomSocket, message, name, color);
+    Socket.sendMessage(roomSocket, message, name, roomName);
   }
 
   // ---------------------------- FUNCTIONS -------------------------------------------
@@ -174,7 +166,6 @@ function App() {
           // relevant method will be fired inside the LoginPage component
           <LoginPage
             joinRoom={joinRoom}
-            createRoom={createRoom}
             setRoomNumber={setRoomName}
             setName={setName}
             name={name}
@@ -206,8 +197,6 @@ function App() {
                 selectedColor={selectedColor}
                 brushSize={brushSize}
                 selectedTool={selectedTool}
-                rectangles={rectangles} setRectangles={setRectangles}
-                circles={circles} setCircles={setCircles}
               />
             </Grid>
 
@@ -220,6 +209,7 @@ function App() {
                 message={message}
                 name={name}
                 color={color}
+                socket={roomSocket}
               />
             </Grid>
 

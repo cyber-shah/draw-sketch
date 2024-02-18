@@ -28,7 +28,7 @@ export function createRoom(mainSocket, roomName, name) {
 
 
 export function registerSocketEvents(
-  roomSocket, setMessages, setCursors, setLines, setClients, clients) {
+  roomSocket, setMessages, setCursors, setLines, setClients, clients, messages) {
 
   roomSocket.on('message', (data) => {
     setMessages((prevMessages) => [...prevMessages, data]);
@@ -55,9 +55,10 @@ export function registerSocketEvents(
   });
 }
 
-export function sendMessage(roomSocket, message, name) {
+export function sendMessage(roomSocket, message, name, roomName) {
   roomSocket.emit('message', {
     "response": "success",
+    "room": roomName,
     "sender": name,
     "payload": message,
   });

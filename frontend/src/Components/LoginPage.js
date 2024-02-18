@@ -57,16 +57,6 @@ export default function LoginPage(props) {
             Join Room
           </Button>
 
-          <Button
-            className="create-button"
-            variant="contained"
-            color="secondary"
-            onClick={() => props.createRoom(props.roomNumber)}
-            fullWidth
-            style={{ borderRadius: '20px', padding: '10px', fontWeight: 'bold' }}
-          >
-            Create New Room
-          </Button>
 
           <Typography variant="caption" style={{ marginTop: '20px', color: '#888' }}>
             Developed by cyber-shah
