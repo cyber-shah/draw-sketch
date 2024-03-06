@@ -5,8 +5,24 @@ from flask import request
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
-clients_by_room = {}
+
+
+"""
+Stores rooms as keys and a dictionary of clients as values.
+{room1 :
+    {client1_sid: {name: '123', status: 'online', timestamp: 'now'},
+    {client2_sid: {name: '456', status: 'online', timestamp: 'now'},
+}
+"""
 rooms = {}
+
+
+"""
+Needed to access/find the room of a client in O(1) time.
+Therefore this stores:
+{client.sid: {room: room1, name: name1}}
+"""
+clients = {}
 
 
 @app.route('/')
@@ -22,44 +38,61 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print("Client disconnected: " + request.sid)
-    sender = clients_by_room.get(request.sid, None)
-    if sender is not None:
-        room = leave_user_room(request.sid)
-        update_clients(room)
+    # get the client's name
+    client = clients[request.sid]
+    room = client['room']
+    if room in rooms:
+        # remove the client from the room
+        del rooms[room][request.sid]
+        # if the room is empty, remove it
+        if len(rooms[room]) == 0:
+            del rooms[room]
+        else:
+            # notify the other clients in the room
+            emit('updateClients',
+                 {
+                     'status': 'success',
+                     'sender': 'server',
+                     'payload': "user " + client['name'] + "has left " + room
+                 },
+                 room=room)
+    leave_room(room)
 
 
 @socketio.on('join')
 def handle_join(data):
-    sender = data['sender']
+    user_name = data['sender']
     room = data['room']
-    if sender is not None and room is not None:
+    if user_name is not None and room is not None:
         if room not in rooms:
             rooms[room] = {}
         # put the sender in the room
-        rooms[room][sender] = {'sid': request.sid,
-                               'status': 'online', 'timestamp': 'now'}
+        rooms[room][request.sid] = {'name': user_name,
+                                    'status': 'online',
+                                    'timestamp': 'now'}
         join_room(room)
         emit('updateClients',
              {
                  'status': 'success',
                  'sender': 'server',
-                 'payload': rooms[room]
+                 'payload': "user " + user_name + "has joined " + rooms[room]
              },
              room=room)
+        clients[request.sid] = {'room': room, 'name': user_name}
         print(rooms)
 
 
 @socketio.on('message')
 def handle_message(data):
-    sender = data['sender']
+    user_name = data['sender']
     room = data['room']
-    if sender is not None and room is not None:
-        print(sender, room, data['payload'])
-        if sender in rooms[room]:
+    if user_name is not None and room is not None:
+        print(user_name, room, data['payload'])
+        if user_name in rooms[room]:
             emit('message',
                  {
                      'status': 'success',
-                     'sender': sender,
+                     'sender': user_name,
                      'payload': data['payload']
                  },
                  room=room)
