@@ -24,6 +24,20 @@ Therefore this stores:
 """
 clients = {}
 
+"""
+Stores messages as keys and a dictionary of clients as values.
+{room1 : {timestamp1: {sender: '123', message: 'hello'},}
+        {timestamp2: {sender: '456', message: 'hi'},}
+"""
+messages_db = {}
+
+
+"""
+Stores lines in one dictionary with arrays for rooms
+{room1: [{x1: 1, y1: 1, x2: 2, y2: 2}, {x1: 3, y1: 3, x2: 4, y2: 4}]}
+"""
+lines_db = {}
+
 
 @app.route('/')
 def index():
@@ -41,6 +55,11 @@ def handle_disconnect():
     # get the client's name
     client = clients[request.sid]
     room = client['room']
+
+    print("client", client)
+    print("room", room)
+
+    """
     if room in rooms:
         # remove the client from the room
         del rooms[room][request.sid]
@@ -57,6 +76,7 @@ def handle_disconnect():
                  },
                  room=room)
     leave_room(room)
+    """
 
 
 @socketio.on('join')
@@ -83,6 +103,8 @@ def handle_join(data):
 
 
 @socketio.on('message')
+# BUG: instead of just emitting the message,
+# we should also store it in the database
 def handle_message(data):
     user_name = data['sender']
     room = data['room']
@@ -129,9 +151,14 @@ def handle_draw_lines(data):
     user_name = data['sender']
     # get the room of the user
     room = clients[request.sid]['room']
-    print(user_name)
-    print(room)
+
+    print("user: " + user_name + " || room: " + room)
     if user_name is not None and room is not None:
+        """
+        if room not in lines_db:
+            lines_db[room] = []
+        lines_db[room].append(data['payload'])
+        """
         emit('drawLines',
              {
                  'status': 'success',
@@ -140,6 +167,22 @@ def handle_draw_lines(data):
              },
              room=room)
         print("emitted drawLines")
+
+
+@socketio.on('clearScreen')
+def handle_clear_screen(data):
+    user_name = data['sender']
+    room = clients[request.sid]['room']
+    if user_name is not None and room is not None:
+        lines_db[room] = []
+        emit('clearScreen',
+             {
+                 'status': 'success',
+                 'sender': user_name,
+                 'payload': lines_db[room]
+             },
+             room=room)
+        print("emitted clearScreen")
 
 
 if __name__ == '__main__':

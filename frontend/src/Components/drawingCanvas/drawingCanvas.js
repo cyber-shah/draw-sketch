@@ -65,6 +65,8 @@ export default function Canvas(props) {
       ]);
 
       // Set the updated lines immediately
+      // NOTE: sends the entire lines array to the server
+      // and resets the lines array on the frontend
       props.setLines(updatedLines);
 
       // Emit the drawn lines to other users
@@ -99,7 +101,10 @@ export default function Canvas(props) {
 
   useEffect(() => {
     if (props.selectedTool === 'trash') {
-      props.setLines([]);
+      props.socket.emit('clearScreen', {
+        response: 'success',
+        sender: props.name,
+      });
     }
   }, [props.selectedTool]);
   // =========================== CANVAS EVENT LISTENERS =========================== //
@@ -136,7 +141,7 @@ export default function Canvas(props) {
                 />
               );
             } else {
-              return null; // or any other logic you want for false condition
+              return null;
             }
           })}
         </Layer>

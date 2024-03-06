@@ -28,11 +28,12 @@ export function createRoom(mainSocket, roomName, name) {
 
 
 export function registerSocketEvents(
-  roomSocket, setMessages, setCursors, setLines, setClients, clients, messages) {
+  roomSocket, setMessages, messages, setCursors, setLines, setClients, clients) {
 
   roomSocket.on('message', (data) => {
-    console.log(data);
-    console.log(messages);
+    // BUG: whenver new user joins send them all the messages
+    // the problem here is that messages are stored on the frontend
+    // instead of the server
     setMessages((prevMessages) => [...prevMessages, data]);
   });
 
@@ -40,8 +41,8 @@ export function registerSocketEvents(
   roomSocket.on('drawLines', (data) => {
     // Update Canvas component with the received lines
     // BUG: solve this here to avoid redrawing when new user joins
-    console.log(data);
-    setLines(data['payload'])
+    setLines(data.payload);
+    console.log("new lines recieved");
   });
 
   // Listen for INCOMING cursor positions and update the Canvas component
@@ -53,10 +54,12 @@ export function registerSocketEvents(
     }));
   });
 
+  /**
   roomSocket.on('updateClients', (data) => {
     console.log(data);
     setClients((prevClients) => [...prevClients, data]);
   });
+  */
 }
 
 export function sendMessage(roomSocket, message, name, roomName) {

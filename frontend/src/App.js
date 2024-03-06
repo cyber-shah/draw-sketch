@@ -153,6 +153,11 @@ function App() {
       console.log(roomSocket);
     }
   }, [roomSocket])
+
+  useEffect(() => {
+    console.log(lines);
+    setLines(lines);
+  }, [lines])
   // ---------------------------- RETURN -------------------------------------------
   return (
     <Paper
