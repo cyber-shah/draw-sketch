@@ -75,7 +75,7 @@ def handle_join(data):
              {
                  'status': 'success',
                  'sender': 'server',
-                 'payload': "user " + user_name + "has joined " + rooms[room]
+                 'payload': "user " + user_name + "has joined " + room
              },
              room=room)
         clients[request.sid] = {'room': room, 'name': user_name}
@@ -86,16 +86,60 @@ def handle_join(data):
 def handle_message(data):
     user_name = data['sender']
     room = data['room']
+
+    print("user_name", user_name)
+    print("room", room)
+    print("message", data['payload'])
+
+    if user_name is not None and room is not None:
+        emit('message',
+             {
+                 'status': 'success',
+                 'sender': user_name,
+                 'payload': data['payload']
+             },
+             room=room)
+        print("emitted message")
+
+
+@socketio.on('cursorUpdate')
+def handle_cursor_update(data):
+    user_name = data['sender']
+    """
+    print(data)
+    print(request.sid)
+    # get the room of the user
+    room = clients[request.sid]['room']
     if user_name is not None and room is not None:
         print(user_name, room, data['payload'])
         if user_name in rooms[room]:
-            emit('message',
+            emit('cursorUpdate',
                  {
                      'status': 'success',
                      'sender': user_name,
                      'payload': data['payload']
                  },
                  room=room)
+
+    """
+
+
+@socketio.on('drawLines')
+def handle_draw_lines(data):
+    user_name = data['sender']
+    # get the room of the user
+    room = clients[request.sid]['room']
+    print(user_name)
+    print(room)
+    if user_name is not None and room is not None:
+        emit('drawLines',
+             {
+                 'status': 'success',
+                 'sender': user_name,
+                 'payload': data['payload']
+             },
+             room=room)
+        print("emitted drawLines")
 
 
 if __name__ == '__main__':

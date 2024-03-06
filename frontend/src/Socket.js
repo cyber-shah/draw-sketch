@@ -31,12 +31,16 @@ export function registerSocketEvents(
   roomSocket, setMessages, setCursors, setLines, setClients, clients, messages) {
 
   roomSocket.on('message', (data) => {
+    console.log(data);
+    console.log(messages);
     setMessages((prevMessages) => [...prevMessages, data]);
   });
 
   // Listen for INCOMING drawn lines and update the Canvas component
   roomSocket.on('drawLines', (data) => {
     // Update Canvas component with the received lines
+    // BUG: solve this here to avoid redrawing when new user joins
+    console.log(data);
     setLines(data['payload'])
   });
 

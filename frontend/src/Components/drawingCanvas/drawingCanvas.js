@@ -10,11 +10,6 @@ import { useRef, useState, useEffect } from 'react';
 
 
 
-
-
-
-
-
 export default function Canvas(props) {
   // ---------------------------- HOOKS ---------------------------- //
   // useRef works like useState but it doesn't cause a re-render when the value changes
