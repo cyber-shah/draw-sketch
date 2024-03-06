@@ -1,6 +1,5 @@
 import './App.css';
 import { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
 import { Icon, Paper, Grid, Typography } from '@mui/material';
 import LoginPage from './Components/LoginPage.js';
 import ChatWindow from './Components/chatWindow.js';
@@ -49,8 +48,6 @@ function App() {
   const [lines, setLines] = useState([]);
   const [cursors, setCursors] = useState({});
   const [color, setColor] = useState(null);
-  const [rectangles, setRectangles] = useState([]);
-  const [circles, setCircles] = useState([]);
 
   // states for the toolbar :
   const [selectedColor, setSelectedColor] = useState('#000000'); // Default color is black

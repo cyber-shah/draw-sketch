@@ -1,11 +1,11 @@
 version: '3'
 services:
   web:
-    image: node:21 # Use the appropriate Node.js version
+    image: node:21 
     ports:
-      - "3000:3000" # Adjust the port as needed
+      - "3000:3000" 
     volumes:
-      - ./frontend:/frontend # Mount your Node.js app directory
+      - ./frontend:/frontend 
     command: >
       bash -c "
       cd frontend &&
@@ -17,12 +17,15 @@ services:
   flask:
     image: python:3.11 
     ports:
-      - "55556:55556" # hostport:containerport
+      - "666:666" # hostport:containerport
     volumes:
       - ./backend:/backend 
     command:  >
       bash -c "
       cd backend && 
-        pip install -r requirements.txt && 
-      # python3 app/main.py
+      pip install virtualenv &&
+      virtualenv venv && 
+      source venv/bin/activate &&   
+      pip install -r requirements.txt &&
+      sleep infinity 
       "
