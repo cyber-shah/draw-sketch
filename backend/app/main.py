@@ -8,13 +8,16 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 clients_by_room = {}
 rooms = {}
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @socketio.on('connect')
 def handle_connect():
     print("Client connected: " + request.sid)
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -24,6 +27,7 @@ def handle_disconnect():
         room = leave_user_room(request.sid)
         update_clients(room)
 
+
 @socketio.on('join')
 def handle_join(data):
     sender = data['sender']
@@ -32,16 +36,18 @@ def handle_join(data):
         if room not in rooms:
             rooms[room] = {}
         # put the sender in the room
-        rooms[room][sender] = {'sid': request.sid, 'status': 'online', 'timestamp': 'now'}       
+        rooms[room][sender] = {'sid': request.sid,
+                               'status': 'online', 'timestamp': 'now'}
         join_room(room)
-        emit('updateClients', 
+        emit('updateClients',
              {
-             'status': 'success', 
-             'sender': 'server', 
-            'payload': rooms[room]
+                 'status': 'success',
+                 'sender': 'server',
+                 'payload': rooms[room]
              },
              room=room)
         print(rooms)
+
 
 @socketio.on('message')
 def handle_message(data):
@@ -50,15 +56,14 @@ def handle_message(data):
     if sender is not None and room is not None:
         print(sender, room, data['payload'])
         if sender in rooms[room]:
-            emit('message', 
-             {
-             'status': 'success', 
-             'sender': sender, 
-             'payload': data['payload']
-             },
-             room=room)
+            emit('message',
+                 {
+                     'status': 'success',
+                     'sender': sender,
+                     'payload': data['payload']
+                 },
+                 room=room)
 
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=666, allow_unsafe_werkzeug=True)
-
