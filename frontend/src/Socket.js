@@ -42,7 +42,6 @@ export function registerSocketEvents(
     // Update Canvas component with the received lines
     // BUG: solve this here to avoid redrawing when new user joins
     setLines(data.payload);
-    console.log("new lines recieved");
   });
 
   // Listen for INCOMING cursor positions and update the Canvas component

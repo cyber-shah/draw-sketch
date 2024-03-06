@@ -59,7 +59,6 @@ def handle_disconnect():
     print("client", client)
     print("room", room)
 
-    """
     if room in rooms:
         # remove the client from the room
         del rooms[room][request.sid]
@@ -68,7 +67,7 @@ def handle_disconnect():
             del rooms[room]
         else:
             # notify the other clients in the room
-            emit('updateClients',
+            emit('message',
                  {
                      'status': 'success',
                      'sender': 'server',
@@ -76,13 +75,13 @@ def handle_disconnect():
                  },
                  room=room)
     leave_room(room)
-    """
 
 
 @socketio.on('join')
 def handle_join(data):
     user_name = data['sender']
     room = data['room']
+
     if user_name is not None and room is not None:
         if room not in rooms:
             rooms[room] = {}
@@ -91,7 +90,8 @@ def handle_join(data):
                                     'status': 'online',
                                     'timestamp': 'now'}
         join_room(room)
-        emit('updateClients',
+        # notify the other clients in the room
+        emit('message',
              {
                  'status': 'success',
                  'sender': 'server',
@@ -99,6 +99,8 @@ def handle_join(data):
              },
              room=room)
         clients[request.sid] = {'room': room, 'name': user_name}
+
+        # send all the previous lines
         print(rooms)
 
 
@@ -121,7 +123,6 @@ def handle_message(data):
                  'payload': data['payload']
              },
              room=room)
-        print("emitted message")
 
 
 @socketio.on('cursorUpdate')
@@ -151,14 +152,11 @@ def handle_draw_lines(data):
     user_name = data['sender']
     # get the room of the user
     room = clients[request.sid]['room']
-
-    print("user: " + user_name + " || room: " + room)
     if user_name is not None and room is not None:
-        """
+
         if room not in lines_db:
             lines_db[room] = []
         lines_db[room].append(data['payload'])
-        """
         emit('drawLines',
              {
                  'status': 'success',
@@ -166,7 +164,6 @@ def handle_draw_lines(data):
                  'payload': data['payload']
              },
              room=room)
-        print("emitted drawLines")
 
 
 @socketio.on('clearScreen')
@@ -175,14 +172,13 @@ def handle_clear_screen(data):
     room = clients[request.sid]['room']
     if user_name is not None and room is not None:
         lines_db[room] = []
-        emit('clearScreen',
+        emit('drawLines',
              {
                  'status': 'success',
                  'sender': user_name,
-                 'payload': lines_db[room]
+                 'payload': []
              },
              room=room)
-        print("emitted clearScreen")
 
 
 if __name__ == '__main__':

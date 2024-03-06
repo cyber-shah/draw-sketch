@@ -105,6 +105,7 @@ export default function Canvas(props) {
         response: 'success',
         sender: props.name,
       });
+      props.setLines([]);
     }
   }, [props.selectedTool]);
   // =========================== CANVAS EVENT LISTENERS =========================== //
