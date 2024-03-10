@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, TextField, Button, Stack, Typography, Link } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import { red } from '@mui/material/colors';
 
 const css = {
   tile: {
@@ -77,6 +78,16 @@ export default function LoginPage(props) {
           </Link>
         </Stack>
       </Paper>
+
+
+      <Typography variant="h6" style={{ marginTop: '100px', color: '#888' }} >
+        Please be aware that this project is self hosted on a really small computer :)
+      </Typography>
+
+      <Typography variant="caption" style={{ marginTop: '10px', color: '#888' }}>
+        and therefore to make sure that it's not overloaded, all the rooms will be cleared after 10 minutes.
+        Thank you!
+      </Typography>
     </>
   );
 };
