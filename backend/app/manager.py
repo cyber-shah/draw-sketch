@@ -1,6 +1,9 @@
 import main
 import threading
 import schedule
+from flask import Flask
+from flask_socketio import SocketIO
+
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
@@ -39,3 +42,25 @@ lines_db = {}
 
 
 def clean_db():
+    '''Checks for empty rooms and cleans them
+    '''
+    for room in rooms:
+        if room is not True:
+            rooms[room].clear()
+
+
+def clean_daily():
+    '''Runs everyday at 00:01 hours and clears everything completely
+    '''
+    clients.clear()
+    rooms.clear()
+    messages_db.clear()
+    lines_db.clear()
+
+
+if __name__ == "__main__":
+    main_thread = threading.Thread(target=main.run())
+
+    schedule.every().day.at("00:01").do(clean_daily())
+
+    main_thread.start()

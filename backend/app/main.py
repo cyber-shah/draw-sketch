@@ -96,7 +96,6 @@ def handle_message(data):
 def handle_cursor_update(data):
     user_name = data['sender']
     room = data['room']
-
     if user_name is not None and room is not None:
         (emit('cursorUpdate',
               {
@@ -142,5 +141,6 @@ def handle_clear_screen(data):
              room=room)
 
 
-if __name__ == '__main__':
+def run():
     socketio.run(app, host='0.0.0.0', port=666, allow_unsafe_werkzeug=True)
+    print("server running")

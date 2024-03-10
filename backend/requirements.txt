@@ -1,2 +1,4 @@
 Flask==3.0.2
 Flask_SocketIO==5.3.6
+room==0.1.11
+schedule==1.2.1

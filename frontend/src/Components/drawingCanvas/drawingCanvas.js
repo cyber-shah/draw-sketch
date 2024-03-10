@@ -43,6 +43,7 @@ export default function Canvas(props) {
     props.socket.emit('cursorUpdate', {
       response: 'success',
       sender: props.name,
+      room: props.room,
       payload: {
         x: point.x,
         y: point.y,

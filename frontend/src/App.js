@@ -199,6 +199,7 @@ function App() {
                 selectedColor={selectedColor}
                 brushSize={brushSize}
                 selectedTool={selectedTool}
+                  room={roomName}
               />
             </Grid>
 
