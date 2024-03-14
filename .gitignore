@@ -15,6 +15,7 @@ frontend/.pnp
 # production
 /build
 
+/backend/new_venv/*
 # misc
 .DS_Store
 .env.local
