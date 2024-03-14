@@ -8,7 +8,7 @@ from manager import clients, rooms, lines_db
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return "Flask is running"
 
 
 @socketio.on('connect')
