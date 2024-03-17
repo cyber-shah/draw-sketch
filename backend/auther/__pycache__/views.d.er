@@ -1,0 +1,4 @@
+##[pylyzer] failed /home/shah/Desktop/draw-sketch/backend/auther/views.py 1710638826 125
+.___v_desugar_1 = pyimport "urllib"
+.request = pyimport "request"
+.register_user: (request: Obj) -> {"hellow"}
