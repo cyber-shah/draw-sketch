@@ -4,10 +4,10 @@ from .models import Message
 
 
 class MsgSerializer(ModelSerializer):
-    sender = serializers.CharField(max_length=100)
-    space = serializers.CharField(max_length = 100)
+    sender = serializers.CharField()
+    space = serializers.CharField()
     timestamp = serializers.DateTimeField(read_only=True)
-    payload = serializers.CharField(max_length=1000)
+    payload = serializers.CharField()
 
     class Meta:
        model = Message
