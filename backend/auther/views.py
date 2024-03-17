@@ -26,8 +26,15 @@ def register_user(request):
 
 @api_view(['GET'])
 def login_user(request):
-    return HttpResponse("Login works")
-
+    try:
+        user = User.objects.get(user_name = request.data.get('user_name'))
+    except:
+        return response.Response({'error': 'User does not exist'},status = status.HTTP_400_BAD_REQUEST)
+    
+    if user.password == request.data.get('password'):
+        return response.Response({'success': 'User validated'}, status = status.HTTP_202_ACCEPTED)
+    else:
+        return response.Response({'error': 'invalid password'}, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def get_users(request):
@@ -53,7 +60,6 @@ def delete_user(request):
 
 @api_view(['PUT'])
 def update_user(request):
-    print(request)
     try:
         user = User.objects.get(user_name=request.data.get('user_name'))
     except:
@@ -68,7 +74,4 @@ def update_user(request):
         return response.Response({'success': 'User data updated'}, status = status.HTTP_202_ACCEPTED)
     else:
         return response.Response(status= status.HTTP_400_BAD_REQUEST)
-
-    
-
 
